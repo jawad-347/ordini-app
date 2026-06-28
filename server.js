@@ -234,11 +234,9 @@ app.post('/api/send-email', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-initDB()
-  .then(() => {
-    app.listen(PORT, () => console.log(`\n✅ App ordini avviata → http://localhost:${PORT}\n`));
-  })
-  .catch(err => {
-    console.error('DB init failed:', err.message);
-    process.exit(1);
-  });
+app.listen(PORT, () => {
+  console.log(`\n✅ App ordini avviata → http://localhost:${PORT}\n`);
+  initDB()
+    .then(() => console.log('✅ Database pronto'))
+    .catch(err => console.error('⚠️ DB init error:', err.message));
+});
