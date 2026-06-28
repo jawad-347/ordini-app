@@ -70,12 +70,21 @@ app.post('/api/clienti', async (req, res) => {
 });
 
 app.post('/api/clienti/bulk', async (req, res) => {
-  const { clienti } = req.body;
-  if (!clienti.length) return res.json({ ok: true, count: 0 });
-  const vals = clienti.map((c, i) => `($${i*6+1},$${i*6+2},$${i*6+3},$${i*6+4},$${i*6+5},$${i*6+6})`).join(',');
-  const params = clienti.flatMap(c => [c.codice||'', c.nome, c.email||'', c.telefono||'', c.indirizzo||'', c.partitaIva||'']);
-  await pool.query(`INSERT INTO clienti (codice,nome,email,telefono,indirizzo,partitaiva) VALUES ${vals}`, params);
-  res.json({ ok: true, count: clienti.length });
+  try {
+    const { clienti } = req.body;
+    if (!clienti || !clienti.length) return res.json({ ok: true, count: 0 });
+    const BATCH = 500;
+    for (let i = 0; i < clienti.length; i += BATCH) {
+      const batch = clienti.slice(i, i + BATCH);
+      const vals = batch.map((c, j) => `($${j*6+1},$${j*6+2},$${j*6+3},$${j*6+4},$${j*6+5},$${j*6+6})`).join(',');
+      const params = batch.flatMap(c => [c.codice||'', c.nome, c.email||'', c.telefono||'', c.indirizzo||'', c.partitaIva||'']);
+      await pool.query(`INSERT INTO clienti (codice,nome,email,telefono,indirizzo,partitaiva) VALUES ${vals}`, params);
+    }
+    res.json({ ok: true, count: clienti.length });
+  } catch(err) {
+    console.error('bulk clienti error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
 });
 
 app.put('/api/clienti/:id', async (req, res) => {
@@ -108,12 +117,21 @@ app.post('/api/prodotti', async (req, res) => {
 });
 
 app.post('/api/prodotti/bulk', async (req, res) => {
-  const { prodotti } = req.body;
-  if (!prodotti.length) return res.json({ ok: true, count: 0 });
-  const vals = prodotti.map((p, i) => `($${i*5+1},$${i*5+2},$${i*5+3},$${i*5+4},$${i*5+5})`).join(',');
-  const params = prodotti.flatMap(p => [p.codice||'', p.nome, p.descrizione||'', p.prezzo||0, p.stock||0]);
-  await pool.query(`INSERT INTO prodotti (codice,nome,descrizione,prezzo,stock) VALUES ${vals}`, params);
-  res.json({ ok: true, count: prodotti.length });
+  try {
+    const { prodotti } = req.body;
+    if (!prodotti || !prodotti.length) return res.json({ ok: true, count: 0 });
+    const BATCH = 500;
+    for (let i = 0; i < prodotti.length; i += BATCH) {
+      const batch = prodotti.slice(i, i + BATCH);
+      const vals = batch.map((p, j) => `($${j*5+1},$${j*5+2},$${j*5+3},$${j*5+4},$${j*5+5})`).join(',');
+      const params = batch.flatMap(p => [p.codice||'', p.nome, p.descrizione||'', p.prezzo||0, p.stock||0]);
+      await pool.query(`INSERT INTO prodotti (codice,nome,descrizione,prezzo,stock) VALUES ${vals}`, params);
+    }
+    res.json({ ok: true, count: prodotti.length });
+  } catch(err) {
+    console.error('bulk prodotti error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
 });
 
 app.put('/api/prodotti/:id', async (req, res) => {
