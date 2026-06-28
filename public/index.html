@@ -367,13 +367,16 @@
 </div>
 
 <script>
-// ---- STORAGE ----
-const DB = {
-  get: k => JSON.parse(localStorage.getItem(k) || '[]'),
-  set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
-};
+// ---- STATO GLOBALE ----
+let _clienti = [], _prodotti = [], _ordini = [];
 
-function nextId(arr) { return arr.length ? Math.max(...arr.map(x => x.id)) + 1 : 1; }
+async function api(method, path, body) {
+  const opts = { method, headers: {} };
+  if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+  const r = await fetch(path, opts);
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
 
 // ---- NAV ----
 function showPage(name) {
@@ -392,19 +395,23 @@ function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 // ---- DASHBOARD ----
-function loadDashboard() {
-  const ordini = DB.get('ordini');
-  const clienti = DB.get('clienti');
-  const prodotti = DB.get('prodotti');
-  const inAttesa = ordini.filter(o => o.stato === 'in_attesa').length;
-  const fatturato = ordini.filter(o => o.stato === 'completato').reduce((s, o) => s + o.totale, 0);
-  document.getElementById('stat-ordini').textContent = ordini.length;
+async function loadDashboard() {
+  try {
+    [_clienti, _prodotti, _ordini] = await Promise.all([
+      api('GET', '/api/clienti'),
+      api('GET', '/api/prodotti'),
+      api('GET', '/api/ordini'),
+    ]);
+  } catch(e) { console.error(e); }
+  const inAttesa = _ordini.filter(o => o.stato === 'in_attesa').length;
+  const fatturato = _ordini.filter(o => o.stato === 'completato').reduce((s, o) => s + o.totale, 0);
+  document.getElementById('stat-ordini').textContent = _ordini.length;
   document.getElementById('stat-attesa').textContent = inAttesa;
-  document.getElementById('stat-clienti').textContent = clienti.length;
-  document.getElementById('stat-prodotti').textContent = prodotti.length;
+  document.getElementById('stat-clienti').textContent = _clienti.length;
+  document.getElementById('stat-prodotti').textContent = _prodotti.length;
   document.getElementById('stat-fatturato').textContent = '€' + fatturato.toFixed(2);
 
-  const last5 = [...ordini].reverse().slice(0, 5);
+  const last5 = _ordini.slice(0, 5);
   const el = document.getElementById('ultimi-ordini');
   if (!last5.length) { el.innerHTML = '<div class="empty">Nessun ordine ancora</div>'; return; }
   el.innerHTML = `<table><thead><tr><th>#</th><th>Cliente</th><th>Stato</th><th>Totale</th><th>Data</th></tr></thead><tbody>
@@ -421,8 +428,11 @@ function loadDashboard() {
 // ---- ORDINI ----
 let allOrdini = [];
 
-function loadOrdini() {
-  allOrdini = [...DB.get('ordini')].reverse();
+async function loadOrdini() {
+  try {
+    _ordini = await api('GET', '/api/ordini');
+  } catch(e) { console.error(e); }
+  allOrdini = [..._ordini];
   renderOrdini(allOrdini);
 }
 
@@ -457,24 +467,30 @@ function filterOrdini(q) {
   ));
 }
 
-function cambiaStato(id, stato) {
-  const ordini = DB.get('ordini');
-  const o = ordini.find(x => x.id === id);
-  if (o) { o.stato = stato; DB.set('ordini', ordini); }
-  loadOrdini();
+async function cambiaStato(id, stato) {
+  try {
+    await api('PUT', '/api/ordini/' + id, { stato });
+    const o = _ordini.find(x => x.id === id);
+    if (o) o.stato = stato;
+    allOrdini = [..._ordini];
+    renderOrdini(allOrdini);
+  } catch(e) { alert('Errore aggiornamento stato'); }
 }
 
-function eliminaOrdine(id) {
+async function eliminaOrdine(id) {
   if (!confirm('Eliminare ordine #' + id + '?')) return;
-  DB.set('ordini', DB.get('ordini').filter(o => o.id !== id));
-  loadOrdini();
+  try {
+    await api('DELETE', '/api/ordini/' + id);
+    _ordini = _ordini.filter(o => o.id !== id);
+    allOrdini = [..._ordini];
+    renderOrdini(allOrdini);
+  } catch(e) { alert('Errore eliminazione ordine'); }
 }
 
 function vedDettaglio(id) {
-  const o = DB.get('ordini').find(x => x.id === id);
+  const o = _ordini.find(x => x.id === id);
   if (!o) return;
-  const c = DB.get('clienti').find(x => x.id === o.clienteId);
-  const prodotti = DB.get('prodotti');
+  const c = _clienti.find(x => x.id === o.clienteId);
   document.getElementById('dettaglio-id').textContent = '#' + o.id;
   document.getElementById('dettaglio-body').innerHTML = `
     <div style="margin-bottom:10px;"><b>Cliente:</b> ${c ? c.nome : '-'} ${c && c.email ? '('+c.email+')' : ''}</div>
@@ -485,17 +501,17 @@ function vedDettaglio(id) {
       <thead><tr><th>Prodotto</th><th>Quantità</th><th>Prezzo unit.</th><th>Subtotale</th></tr></thead>
       <tbody>
         ${o.righe.map(r => {
-          const p = prodotti.find(x => x.id === r.prodottoId);
+          const p = _prodotti.find(x => x.id === r.prodottoId);
           return `<tr>
             <td>${p ? p.nome : 'Prodotto rimosso'}</td>
             <td>${r.quantita}</td>
-            <td>€${r.prezzo.toFixed(2)}</td>
+            <td>€${parseFloat(r.prezzo).toFixed(2)}</td>
             <td>€${(r.quantita * r.prezzo).toFixed(2)}</td>
           </tr>`;
         }).join('')}
       </tbody>
     </table>
-    <div style="text-align:right; font-weight:700; font-size:18px; margin-top:12px; color:#4f8ef7;">Totale: €${o.totale.toFixed(2)}</div>
+    <div style="text-align:right;font-weight:700;font-size:18px;margin-top:12px;color:#4f8ef7;">Totale: €${o.totale.toFixed(2)}</div>
   `;
   openModal('modal-dettaglio');
 }
@@ -505,9 +521,12 @@ let wizardClienteId = null;
 let wizardRighe = [];
 let wizardArtSelezionato = null;
 
-function openNuovoOrdine() {
-  if (!DB.get('clienti').length) { alert('Aggiungi almeno un cliente prima.'); return; }
-  if (!DB.get('prodotti').length) { alert('Aggiungi almeno un prodotto prima.'); return; }
+async function openNuovoOrdine() {
+  try {
+    [_clienti, _prodotti] = await Promise.all([api('GET', '/api/clienti'), api('GET', '/api/prodotti')]);
+  } catch(e) { alert('Errore caricamento dati'); return; }
+  if (!_clienti.length) { alert('Aggiungi almeno un cliente prima.'); return; }
+  if (!_prodotti.length) { alert('Aggiungi almeno un prodotto prima.'); return; }
   wizardClienteId = null;
   wizardRighe = [];
   wizardArtSelezionato = null;
@@ -518,15 +537,14 @@ function openNuovoOrdine() {
 }
 
 function filtraClientiOrdine(q) {
-  const clienti = DB.get('clienti');
   const ql = q.toLowerCase();
   const filtered = ql
-    ? clienti.filter(c =>
+    ? _clienti.filter(c =>
         c.nome.toLowerCase().includes(ql) ||
         (c.codice||'').toLowerCase().includes(ql) ||
         String(c.id).includes(ql) ||
         (c.partitaIva||'').toLowerCase().includes(ql))
-    : clienti;
+    : _clienti;
   const el = document.getElementById('lista-clienti-ordine');
   if (!filtered.length) { el.innerHTML = '<div class="no-results">Nessun cliente trovato</div>'; return; }
   el.innerHTML = filtered.map(c => `
@@ -540,7 +558,7 @@ function filtraClientiOrdine(q) {
 }
 
 function selezionaCliente(id) {
-  const c = DB.get('clienti').find(x => x.id === id);
+  const c = _clienti.find(x => x.id === id);
   wizardClienteId = id;
   closeModal('modal-ordine');
   document.getElementById('np-cliente-code').textContent = c.codice || ('#' + c.id);
@@ -558,12 +576,9 @@ function cambiaClienteOrdine() {
   setTimeout(() => document.getElementById('cerca-cliente-input').focus(), 100);
 }
 
-function annullaOrdineNuovo() {
-  showPage('ordini');
-}
+function annullaOrdineNuovo() { showPage('ordini'); }
 
 function renderRighe() {
-  const prodotti = DB.get('prodotti');
   const el = document.getElementById('np-righe');
   if (!wizardRighe.length) {
     el.innerHTML = '<div style="color:#aaa;font-size:14px;text-align:center;padding:24px;">Nessun articolo aggiunto ancora</div>';
@@ -571,8 +586,7 @@ function renderRighe() {
     return;
   }
   el.innerHTML = wizardRighe.map((r, i) => {
-    const p = prodotti.find(x => x.id === r.prodottoId);
-    const subtot = r.prezzo * r.quantita;
+    const p = _prodotti.find(x => x.id === r.prodottoId);
     return `<div class="riga-ordine">
       <span class="art-code">${p && p.codice ? p.codice : (p ? '#'+p.id : '?')}</span>
       <div><div class="art-nome">${p ? p.nome : '?'}</div><div class="art-sub">${p ? (p.descrizione||'') : ''}</div></div>
@@ -598,14 +612,13 @@ function openCercaArticolo() {
 }
 
 function filtraArticoli(q) {
-  const prodotti = DB.get('prodotti');
   const ql = q.toLowerCase();
   const filtered = ql
-    ? prodotti.filter(p =>
+    ? _prodotti.filter(p =>
         p.nome.toLowerCase().includes(ql) ||
         (p.codice||'').toLowerCase().includes(ql) ||
         (p.descrizione||'').toLowerCase().includes(ql))
-    : prodotti;
+    : _prodotti;
   const el = document.getElementById('lista-articoli');
   if (!filtered.length) { el.innerHTML = '<div class="no-results">Nessun articolo trovato</div>'; return; }
   el.innerHTML = filtered.map(p => `
@@ -619,7 +632,7 @@ function filtraArticoli(q) {
 }
 
 function selezionaArticolo(id) {
-  const p = DB.get('prodotti').find(x => x.id === id);
+  const p = _prodotti.find(x => x.id === id);
   wizardArtSelezionato = p;
   document.getElementById('art-selezionato-code').textContent = p.codice || ('#' + p.id);
   document.getElementById('art-selezionato-nome').textContent = p.nome;
@@ -650,34 +663,34 @@ function confermaArticolo() {
   renderRighe();
 }
 
-function salvaOrdine() {
+async function salvaOrdine() {
   if (!wizardClienteId) { alert('Seleziona un cliente'); return; }
   if (!wizardRighe.length) { alert('Aggiungi almeno un articolo'); return; }
   const totale = wizardRighe.reduce((s, r) => s + r.prezzo * r.quantita, 0);
-  const ordini = DB.get('ordini');
-  const nuovoId = nextId(ordini);
-  const c = DB.get('clienti').find(x => x.id === wizardClienteId);
-  const prodotti = DB.get('prodotti');
+  const c = _clienti.find(x => x.id === wizardClienteId);
   const note = document.getElementById('np-note').value;
-  ordini.push({ id: nuovoId, clienteId: wizardClienteId, righe: wizardRighe, totale, stato: 'in_attesa', note, data: new Date().toISOString() });
-  DB.set('ordini', ordini);
+
+  let nuovoOrdine;
+  try {
+    nuovoOrdine = await api('POST', '/api/ordini', { clienteId: wizardClienteId, righe: wizardRighe, totale, stato: 'in_attesa', note });
+    _ordini.unshift(nuovoOrdine);
+  } catch(e) { alert('Errore salvataggio ordine'); return; }
+
   showPage('ordini');
 
   const articoli = wizardRighe.map(r => {
-    const p = prodotti.find(x => x.id === r.prodottoId);
+    const p = _prodotti.find(x => x.id === r.prodottoId);
     return { codice: p && p.codice ? p.codice : ('#'+r.prodottoId), nome: p ? p.nome : '?', quantita: r.quantita, prezzo: r.prezzo };
   });
-  document.getElementById('ordine-ok-info').textContent = `Ordine #${nuovoId} per ${c ? c.nome : ''} — Totale €${totale.toFixed(2)}`;
+  document.getElementById('ordine-ok-info').textContent = `Ordine #${nuovoOrdine.id} per ${c ? c.nome : ''} — Totale €${totale.toFixed(2)}`;
   document.getElementById('ordine-ok-email-stato').textContent = '📧 Invio email in corso...';
   openModal('modal-ordine-ok');
 
   const payload = {
-    ordineId: nuovoId,
+    ordineId: nuovoOrdine.id,
     clienteNome: c ? c.nome : '',
     clienteCodice: c ? (c.codice || '') : '',
-    articoli,
-    totale,
-    note,
+    articoli, totale, note,
     data: new Date().toLocaleString('it-IT'),
   };
   inviaEmailOrdine(payload, document.getElementById('ordine-ok-email-stato'));
@@ -686,23 +699,19 @@ function salvaOrdine() {
 // ---- SISTEMA EMAIL CON CODA ----
 function inviaEmailOrdine(payload, statoEl) {
   if (statoEl) statoEl.textContent = '📧 Invio email in corso...';
-  fetch('/api/send-email', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  })
+  fetch('/api/send-email', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) })
   .then(r => r.json())
   .then(r => {
     if (r.ok) {
       if (statoEl) statoEl.textContent = '✅ Email inviata a jawad@freshtropical.it';
     } else {
       aggiungiCoda(payload);
-      if (statoEl) statoEl.textContent = '⚠️ Errore invio — salvata in coda, verrà inviata al prossimo avvio';
+      if (statoEl) statoEl.textContent = '⚠️ Errore invio — salvata in coda';
     }
   })
   .catch(() => {
     aggiungiCoda(payload);
-    if (statoEl) statoEl.innerHTML = '🕐 Server non attivo — email salvata in coda<br><small style="color:#888;">Si invierà automaticamente al prossimo avvio di avvia.bat</small>';
+    if (statoEl) statoEl.innerHTML = '🕐 Server non attivo — email salvata in coda<br><small style="color:#888;">Si invierà automaticamente al prossimo avvio</small>';
   });
 }
 
@@ -718,41 +727,28 @@ function aggiungiCoda(payload) {
 function aggiornaContatoreCoda() {
   const coda = JSON.parse(localStorage.getItem('emailCoda') || '[]');
   const el = document.getElementById('coda-badge');
-  if (el) {
-    el.textContent = coda.length > 0 ? coda.length : '';
-    el.style.display = coda.length > 0 ? '' : 'none';
-  }
+  if (el) { el.textContent = coda.length > 0 ? coda.length : ''; el.style.display = coda.length > 0 ? '' : 'none'; }
 }
 
 function svuotaCodaEmail() {
   const coda = JSON.parse(localStorage.getItem('emailCoda') || '[]');
   if (!coda.length) return;
-  let inviati = 0;
-  let idx = 0;
+  let inviati = 0, idx = 0;
   function prossima() {
     if (idx >= coda.length) {
-      if (inviati > 0) {
-        alert(`✅ ${inviati} email in coda inviate con successo!`);
-        aggiornaContatoreCoda();
-      }
+      if (inviati > 0) { alert(`✅ ${inviati} email in coda inviate!`); aggiornaContatoreCoda(); }
       return;
     }
     const payload = coda[idx];
-    fetch('/api/send-email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
+    fetch('/api/send-email', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) })
     .then(r => r.json())
     .then(r => {
       if (r.ok) {
         inviati++;
-        const codaAggiornata = JSON.parse(localStorage.getItem('emailCoda') || '[]');
-        const nuovaCoda = codaAggiornata.filter(x => x.ordineId !== payload.ordineId);
+        const nuovaCoda = JSON.parse(localStorage.getItem('emailCoda') || '[]').filter(x => x.ordineId !== payload.ordineId);
         localStorage.setItem('emailCoda', JSON.stringify(nuovaCoda));
       }
-      idx++;
-      prossima();
+      idx++; prossima();
     })
     .catch(() => { idx++; prossima(); });
   }
@@ -776,11 +772,11 @@ function controllaServerECoda() {
 }
 
 // ---- CLIENTI ----
-function loadClienti() {
-  const clienti = DB.get('clienti');
+async function loadClienti() {
+  try { _clienti = await api('GET', '/api/clienti'); } catch(e) { console.error(e); }
   const tbody = document.getElementById('tbody-clienti');
-  if (!clienti.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Nessun cliente</td></tr>'; return; }
-  tbody.innerHTML = clienti.map(c => `<tr>
+  if (!_clienti.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Nessun cliente</td></tr>'; return; }
+  tbody.innerHTML = _clienti.map(c => `<tr>
     <td>${c.nome}</td>
     <td>${c.email || '-'}</td>
     <td>${c.telefono || '-'}</td>
@@ -800,7 +796,7 @@ function openNuovoCliente() {
 }
 
 function openModificaCliente(id) {
-  const c = DB.get('clienti').find(x => x.id === id);
+  const c = _clienti.find(x => x.id === id);
   document.getElementById('modal-cliente-title').textContent = 'Modifica Cliente';
   document.getElementById('cliente-id').value = c.id;
   document.getElementById('cliente-nome').value = c.nome;
@@ -810,41 +806,36 @@ function openModificaCliente(id) {
   openModal('modal-cliente');
 }
 
-function salvaCliente() {
+async function salvaCliente() {
   const nome = document.getElementById('cliente-nome').value.trim();
   if (!nome) { alert('Il nome è obbligatorio'); return; }
   const id = parseInt(document.getElementById('cliente-id').value) || null;
-  const clienti = DB.get('clienti');
   const obj = { nome, email: document.getElementById('cliente-email').value, telefono: document.getElementById('cliente-tel').value, indirizzo: document.getElementById('cliente-indirizzo').value };
-  if (id) {
-    const i = clienti.findIndex(x => x.id === id);
-    clienti[i] = { ...clienti[i], ...obj };
-  } else {
-    clienti.push({ id: nextId(clienti), ...obj });
-  }
-  DB.set('clienti', clienti);
-  closeModal('modal-cliente');
-  loadClienti();
+  try {
+    if (id) { await api('PUT', '/api/clienti/' + id, obj); }
+    else { await api('POST', '/api/clienti', obj); }
+    closeModal('modal-cliente');
+    loadClienti();
+  } catch(e) { alert('Errore salvataggio cliente'); }
 }
 
-function eliminaCliente(id) {
+async function eliminaCliente(id) {
   if (!confirm('Eliminare questo cliente?')) return;
-  DB.set('clienti', DB.get('clienti').filter(c => c.id !== id));
-  loadClienti();
+  try { await api('DELETE', '/api/clienti/' + id); loadClienti(); }
+  catch(e) { alert('Errore eliminazione cliente'); }
 }
 
-// ---- IMPORTA EXCEL ----
+// ---- IMPORTA EXCEL CLIENTI ----
 function importaClientiExcel(input) {
   const file = input.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = async e => {
     const wb = XLSX.read(e.target.result, { type: 'array' });
     const ws = wb.Sheets[wb.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
     if (!rows.length) { alert('Nessun dato trovato nel file.'); return; }
 
-    // Mappa flessibile: cerca le colonne per nome (case-insensitive)
     const col = (row, ...keys) => {
       for (const k of keys) {
         const found = Object.keys(row).find(h => h.toLowerCase().includes(k.toLowerCase()));
@@ -853,8 +844,8 @@ function importaClientiExcel(input) {
       return '';
     };
 
-    const clienti = DB.get('clienti');
-    let aggiunti = 0, saltati = 0;
+    const clientiDaInviare = [];
+    let saltati = 0;
     for (const row of rows) {
       const nome = col(row, 'nome', 'cliente', 'ragione', 'company');
       if (!nome) { saltati++; continue; }
@@ -865,26 +856,26 @@ function importaClientiExcel(input) {
       const piva = col(row, 'partita', 'iva', 'vat', 'p.iva');
       const email = col(row, 'email', 'mail');
       const tel = col(row, 'tel', 'phone', 'cellulare');
-
       const indirizzo = [via, localita, cap, provincia].filter(Boolean).join(', ');
       const codice = col(row, 'cliente', 'codice', 'code', 'cod.');
-      clienti.push({ id: nextId(clienti), codice, nome, email, telefono: tel, indirizzo, partitaIva: piva });
-      aggiunti++;
+      clientiDaInviare.push({ codice, nome, email, telefono: tel, indirizzo, partitaIva: piva });
     }
-    DB.set('clienti', clienti);
-    input.value = '';
-    loadClienti();
-    alert(`Importazione completata!\n✅ ${aggiunti} clienti aggiunti\n⏭️ ${saltati} righe saltate (senza nome)`);
+    try {
+      const r = await api('POST', '/api/clienti/bulk', { clienti: clientiDaInviare });
+      input.value = '';
+      loadClienti();
+      alert(`Importazione completata!\n✅ ${r.count} clienti aggiunti\n⏭️ ${saltati} righe saltate (senza nome)`);
+    } catch(e) { alert('Errore importazione: ' + e.message); }
   };
   reader.readAsArrayBuffer(file);
 }
 
 // ---- PRODOTTI ----
-function loadProdotti() {
-  const prodotti = DB.get('prodotti');
+async function loadProdotti() {
+  try { _prodotti = await api('GET', '/api/prodotti'); } catch(e) { console.error(e); }
   const tbody = document.getElementById('tbody-prodotti');
-  if (!prodotti.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Nessun prodotto</td></tr>'; return; }
-  tbody.innerHTML = prodotti.map(p => `<tr>
+  if (!_prodotti.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Nessun prodotto</td></tr>'; return; }
+  tbody.innerHTML = _prodotti.map(p => `<tr>
     <td>${p.nome}</td>
     <td>${p.descrizione || '-'}</td>
     <td>€${p.prezzo.toFixed(2)}</td>
@@ -904,7 +895,7 @@ function openNuovoProdotto() {
 }
 
 function openModificaProdotto(id) {
-  const p = DB.get('prodotti').find(x => x.id === id);
+  const p = _prodotti.find(x => x.id === id);
   document.getElementById('modal-prodotto-title').textContent = 'Modifica Prodotto';
   document.getElementById('prodotto-id').value = p.id;
   document.getElementById('prodotto-nome').value = p.nome;
@@ -914,28 +905,24 @@ function openModificaProdotto(id) {
   openModal('modal-prodotto');
 }
 
-function salvaProdotto() {
+async function salvaProdotto() {
   const nome = document.getElementById('prodotto-nome').value.trim();
   const prezzo = parseFloat(document.getElementById('prodotto-prezzo').value);
   if (!nome || isNaN(prezzo)) { alert('Nome e prezzo sono obbligatori'); return; }
   const id = parseInt(document.getElementById('prodotto-id').value) || null;
-  const prodotti = DB.get('prodotti');
   const obj = { nome, descrizione: document.getElementById('prodotto-desc').value, prezzo, stock: parseInt(document.getElementById('prodotto-stock').value) || 0 };
-  if (id) {
-    const i = prodotti.findIndex(x => x.id === id);
-    prodotti[i] = { ...prodotti[i], ...obj };
-  } else {
-    prodotti.push({ id: nextId(prodotti), ...obj });
-  }
-  DB.set('prodotti', prodotti);
-  closeModal('modal-prodotto');
-  loadProdotti();
+  try {
+    if (id) { await api('PUT', '/api/prodotti/' + id, obj); }
+    else { await api('POST', '/api/prodotti', obj); }
+    closeModal('modal-prodotto');
+    loadProdotti();
+  } catch(e) { alert('Errore salvataggio prodotto'); }
 }
 
-function eliminaProdotto(id) {
+async function eliminaProdotto(id) {
   if (!confirm('Eliminare questo prodotto?')) return;
-  DB.set('prodotti', DB.get('prodotti').filter(p => p.id !== id));
-  loadProdotti();
+  try { await api('DELETE', '/api/prodotti/' + id); loadProdotti(); }
+  catch(e) { alert('Errore eliminazione prodotto'); }
 }
 
 // ---- IMPORTA EXCEL PRODOTTI ----
@@ -943,7 +930,7 @@ function importaProdottiExcel(input) {
   const file = input.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = async e => {
     const wb = XLSX.read(e.target.result, { type: 'array' });
     const ws = wb.Sheets[wb.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
@@ -957,30 +944,30 @@ function importaProdottiExcel(input) {
       return '';
     };
 
-    const prodotti = DB.get('prodotti');
-    let aggiunti = 0, saltati = 0;
+    const prodottiDaInviare = [];
+    let saltati = 0;
     for (const row of rows) {
       const nome = String(col(row, 'descrizione', 'nome', 'name', 'prodotto') || '').trim();
       if (!nome) { saltati++; continue; }
       const codice = String(col(row, 'materiale', 'codice', 'sku', 'cod') || '').trim();
-      const prezzoRaw = col(row, 'prezzo', 'price', 'costo');
-      const prezzo = parseFloat(prezzoRaw) || 0;
+      const prezzo = parseFloat(col(row, 'prezzo', 'price', 'costo')) || 0;
       const um = String(col(row, 'unità', 'unita', 'um', 'unit') || '').trim();
       const descrizione = [codice, um].filter(Boolean).join(' | ');
-      prodotti.push({ id: nextId(prodotti), codice, nome, descrizione, prezzo, stock: 0 });
-      aggiunti++;
+      prodottiDaInviare.push({ codice, nome, descrizione, prezzo, stock: 0 });
     }
-    DB.set('prodotti', prodotti);
-    input.value = '';
-    loadProdotti();
-    alert(`Importazione completata!\n✅ ${aggiunti} prodotti aggiunti\n⏭️ ${saltati} righe saltate`);
+    try {
+      const r = await api('POST', '/api/prodotti/bulk', { prodotti: prodottiDaInviare });
+      input.value = '';
+      loadProdotti();
+      alert(`Importazione completata!\n✅ ${r.count} prodotti aggiunti\n⏭️ ${saltati} righe saltate`);
+    } catch(e) { alert('Errore importazione: ' + e.message); }
   };
   reader.readAsArrayBuffer(file);
 }
 
 // ---- UTILS ----
 function clienteNome(id) {
-  const c = DB.get('clienti').find(x => x.id === id);
+  const c = _clienti.find(x => x.id === id);
   return c ? c.nome : '-';
 }
 
