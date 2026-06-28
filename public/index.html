@@ -972,18 +972,20 @@ async function salvaOrdine() {
 function inviaEmailOrdine(payload, statoEl) {
   if (statoEl) statoEl.textContent = '📧 Invio email in corso...';
   fetch('/api/send-email', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) })
-  .then(r => r.json())
-  .then(r => {
+  .then(r => r.text().then(text => ({ status: r.status, text })))
+  .then(({ status, text }) => {
+    let r;
+    try { r = JSON.parse(text); } catch(e) { throw new Error('Risposta non valida: ' + text.substring(0, 80)); }
     if (r.ok) {
-      if (statoEl) statoEl.textContent = '✅ Email inviata a jawad@freshtropical.it';
+      if (statoEl) statoEl.textContent = '✅ Email inviata!';
     } else {
       aggiungiCoda(payload);
-      if (statoEl) statoEl.textContent = '⚠️ Errore invio — salvata in coda';
+      if (statoEl) statoEl.textContent = '⚠️ Errore SMTP: ' + (r.error || 'sconosciuto');
     }
   })
-  .catch(() => {
+  .catch(err => {
     aggiungiCoda(payload);
-    if (statoEl) statoEl.innerHTML = '🕐 Server non attivo — email salvata in coda<br><small style="color:#888;">Si invierà automaticamente al prossimo avvio</small>';
+    if (statoEl) statoEl.innerHTML = '❌ Errore: ' + err.message + '<br><small style="color:#888;">Email salvata in coda</small>';
   });
 }
 
