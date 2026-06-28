@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestione Ordini</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; }
+
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0; width: 220px;
+    background: #1a1f2e; color: #fff; display: flex; flex-direction: column;
+  }
+  .sidebar-logo {
+    padding: 24px 20px; font-size: 20px; font-weight: 700;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sidebar-logo span { font-size: 26px; }
+  .sidebar nav { padding: 12px 0; flex: 1; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 20px; cursor: pointer; font-size: 14px;
+    color: rgba(255,255,255,.7); transition: all .2s;
+  }
+  .nav-item:hover, .nav-item.active { background: rgba(255,255,255,.1); color: #fff; }
+  .nav-item.active { border-left: 3px solid #4f8ef7; }
+  .nav-item .icon { font-size: 18px; }
+
+  .main { margin-left: 220px; padding: 30px; min-height: 100vh; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  h1 { font-size: 24px; margin-bottom: 24px; color: #1a1f2e; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 30px; }
+  .stat-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  .stat-card .label { font-size: 13px; color: #888; margin-bottom: 6px; }
+  .stat-card .value { font-size: 28px; font-weight: 700; color: #1a1f2e; }
+  .stat-card .value.green { color: #22c55e; }
+  .stat-card .value.blue { color: #4f8ef7; }
+  .stat-card .value.orange { color: #f97316; }
+
+  .card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 20px; }
+  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+  .toolbar h2 { font-size: 18px; }
+
+  button { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all .2s; }
+  .btn-primary { background: #4f8ef7; color: #fff; }
+  .btn-primary:hover { background: #3a7de8; }
+  .btn-danger { background: #fee2e2; color: #dc2626; }
+  .btn-danger:hover { background: #fecaca; }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #f8fafc; text-align: left; padding: 10px 14px; font-size: 13px; color: #666; border-bottom: 1px solid #e5e7eb; }
+  td { padding: 12px 14px; font-size: 14px; border-bottom: 1px solid #f1f5f9; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f9fafb; }
+
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+  .badge-attesa { background: #fef9c3; color: #854d0e; }
+  .badge-completato { background: #dcfce7; color: #166534; }
+  .badge-annullato { background: #fee2e2; color: #991b1b; }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #fff; border-radius: 14px; padding: 28px; width: 500px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,.2); }
+  .modal h3 { margin-bottom: 20px; font-size: 18px; }
+
+  label { display: block; font-size: 13px; color: #555; margin-bottom: 4px; margin-top: 12px; }
+  input, select, textarea { width: 100%; padding: 9px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; outline: none; transition: border-color .2s; }
+  input:focus, select:focus, textarea:focus { border-color: #4f8ef7; }
+  textarea { resize: vertical; min-height: 70px; }
+
+  .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+  .prodotto-row { display: grid; grid-template-columns: 1fr 80px auto; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .prodotto-row select, .prodotto-row input { margin: 0; }
+
+  .empty { text-align: center; color: #aaa; padding: 40px; font-size: 15px; }
+  .search-input { padding: 8px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; width: 220px; }
+
+  .stato-select { border: none; background: transparent; font-size: 12px; cursor: pointer; padding: 3px 6px; border-radius: 6px; color: #555; }
+  .stato-select:focus { outline: 1px solid #4f8ef7; }
+
+  /* Search items */
+  .search-item {
+    padding: 10px 14px; border-radius: 8px; cursor: pointer;
+    border: 1px solid #e5e7eb; margin-bottom: 6px; transition: all .15s; background: #fff;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .search-item:hover { background: #eff6ff; border-color: #4f8ef7; }
+  .search-item .item-left { flex: 1; }
+  .search-item .item-title { font-weight: 600; font-size: 14px; }
+  .search-item .item-sub  { font-size: 12px; color: #888; margin-top: 2px; }
+  .search-item .item-code { font-size: 12px; font-weight: 700; color: #4f8ef7; background: #eff6ff; padding: 2px 8px; border-radius: 6px; white-space: nowrap; }
+
+  /* Righe ordine */
+  .riga-ordine {
+    display: grid; grid-template-columns: auto 1fr 80px 90px 36px;
+    gap: 8px; align-items: center; padding: 10px 12px;
+    background: #f8fafc; border-radius: 8px; margin-bottom: 6px; border: 1px solid #e5e7eb;
+  }
+  .riga-ordine .art-code { font-size: 11px; font-weight: 700; color: #4f8ef7; background: #eff6ff; padding: 2px 7px; border-radius: 5px; white-space: nowrap; }
+  .riga-ordine .art-nome { font-size: 13px; font-weight: 600; }
+  .riga-ordine .art-sub  { font-size: 11px; color: #888; }
+  .riga-ordine .art-val  { font-size: 13px; text-align: right; }
+  .riga-ordine .art-del  { background: #fee2e2; color: #dc2626; border: none; border-radius: 6px; padding: 5px 9px; cursor: pointer; font-size: 14px; }
+
+  .step-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .btn-back { background: #f1f5f9; color: #555; font-size: 13px; padding: 7px 14px; border-radius: 8px; border: none; cursor: pointer; }
+  .btn-back:hover { background: #e2e8f0; }
+  .no-results { text-align: center; color: #aaa; padding: 24px; font-size: 14px; }
+
+  /* Pagina ordine */
+  .ordine-cliente-card {
+    background: #fff; border-radius: 12px; padding: 18px 22px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 16px;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  }
+  .ordine-cliente-card .cliente-code { font-size: 12px; font-weight: 700; color: #4f8ef7; background: #eff6ff; padding: 2px 9px; border-radius: 6px; }
+
+  /* Email success modal */
+  .success-box { text-align: center; padding: 10px 0 20px; }
+  .success-box .icon { font-size: 52px; margin-bottom: 12px; }
+  .success-box h3 { font-size: 20px; margin-bottom: 6px; }
+  .success-box p { color: #666; font-size: 14px; margin-bottom: 20px; }
+  .btn-email { background: #4f8ef7; color: #fff; font-size: 15px; padding: 11px 24px; border-radius: 10px; text-decoration: none; display: inline-block; margin-right: 8px; }
+  .btn-email:hover { background: #3a7de8; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo"><span>📦</span> Ordini</div>
+  <nav>
+    <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">🏠</span> Dashboard</div>
+    <div class="nav-item" onclick="showPage('ordini')"><span class="icon">📋</span> Ordini <span id="coda-badge" style="display:none;background:#f97316;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:auto;"></span></div>
+    <div class="nav-item" onclick="showPage('clienti')"><span class="icon">👥</span> Clienti</div>
+    <div class="nav-item" onclick="showPage('prodotti')"><span class="icon">🛍️</span> Prodotti</div>
+  </nav>
+  <div style="padding:16px;">
+    <div id="server-stato" style="font-size:11px;text-align:center;padding:6px;border-radius:6px;background:rgba(255,255,255,.05);color:#aaa;margin-bottom:8px;"></div>
+    <button id="btn-invia-coda" onclick="svuotaCodaEmail()" style="display:none;width:100%;background:#f97316;color:#fff;border:none;border-radius:8px;padding:9px;font-size:13px;cursor:pointer;font-weight:600;">
+      📤 Invia coda email
+    </button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page active">
+    <h1>Dashboard</h1>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="label">Totale Ordini</div><div class="value blue" id="stat-ordini">0</div></div>
+      <div class="stat-card"><div class="label">In Attesa</div><div class="value orange" id="stat-attesa">0</div></div>
+      <div class="stat-card"><div class="label">Clienti</div><div class="value" id="stat-clienti">0</div></div>
+      <div class="stat-card"><div class="label">Prodotti</div><div class="value" id="stat-prodotti">0</div></div>
+      <div class="stat-card"><div class="label">Fatturato</div><div class="value green" id="stat-fatturato">€0.00</div></div>
+    </div>
+    <div class="card">
+      <h2 style="margin-bottom:16px; font-size:16px; color:#555;">Ultimi Ordini</h2>
+      <div id="ultimi-ordini"></div>
+    </div>
+  </div>
+
+  <!-- ORDINI -->
+  <div id="page-ordini" class="page">
+    <h1>Ordini</h1>
+    <div class="card">
+      <div class="toolbar">
+        <h2>Lista Ordini</h2>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <input class="search-input" placeholder="Cerca..." oninput="filterOrdini(this.value)" id="search-ordini">
+          <button class="btn-primary" onclick="openNuovoOrdine()">+ Nuovo Ordine</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>Cliente</th><th>Stato</th><th>Totale</th><th>Data</th><th>Azioni</th></tr></thead>
+        <tbody id="tbody-ordini"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CLIENTI -->
+  <div id="page-clienti" class="page">
+    <h1>Clienti</h1>
+    <div class="card">
+      <div class="toolbar">
+        <h2>Lista Clienti</h2>
+        <button class="btn-primary" onclick="openNuovoCliente()">+ Nuovo Cliente</button>
+        <button class="btn-primary" onclick="document.getElementById('import-excel').click()" style="background:#16a34a;">📥 Importa Excel</button>
+        <input type="file" id="import-excel" accept=".xlsx,.xls" style="display:none" onchange="importaClientiExcel(this)">
+      </div>
+      <table>
+        <thead><tr><th>Nome</th><th>Email</th><th>Telefono</th><th>Indirizzo</th><th>Azioni</th></tr></thead>
+        <tbody id="tbody-clienti"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PAGINA NUOVO ORDINE -->
+  <div id="page-ordine-nuovo" class="page">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;">
+      <button class="btn-back" style="font-size:14px;padding:9px 16px;" onclick="annullaOrdineNuovo()">← Ordini</button>
+      <h1 style="margin:0;">Nuovo Ordine</h1>
+    </div>
+
+    <div class="ordine-cliente-card">
+      <div>
+        <div style="font-size:12px;color:#888;margin-bottom:3px;">Cliente</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="cliente-code" id="np-cliente-code"></span>
+          <span id="np-cliente-nome" style="font-size:19px;font-weight:700;color:#1a1f2e;"></span>
+        </div>
+        <div id="np-cliente-info" style="font-size:12px;color:#888;margin-top:3px;"></div>
+      </div>
+      <button class="btn-back" onclick="cambiaClienteOrdine()">Cambia cliente</button>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h2>Articoli in ordine</h2>
+        <button class="btn-primary" style="font-size:14px;padding:10px 20px;" onclick="openCercaArticolo()">＋ Aggiungi Articolo</button>
+      </div>
+      <div id="np-righe"></div>
+      <div id="np-totale" style="text-align:right;font-size:22px;font-weight:700;color:#4f8ef7;margin-top:14px;padding-top:12px;border-top:2px solid #f1f5f9;"></div>
+    </div>
+
+    <div class="card">
+      <label>Note ordine</label>
+      <textarea id="np-note" placeholder="Note, istruzioni di consegna..."></textarea>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
+        <button onclick="annullaOrdineNuovo()">Annulla</button>
+        <button class="btn-primary" style="font-size:16px;padding:12px 32px;" onclick="salvaOrdine()">✓ Crea Ordine</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODOTTI -->
+  <div id="page-prodotti" class="page">
+    <h1>Prodotti</h1>
+    <div class="card">
+      <div class="toolbar">
+        <h2>Catalogo Prodotti</h2>
+        <button class="btn-primary" onclick="openNuovoProdotto()">+ Nuovo Prodotto</button>
+        <button class="btn-primary" onclick="document.getElementById('import-excel-prodotti').click()" style="background:#16a34a;">📥 Importa Excel</button>
+        <input type="file" id="import-excel-prodotti" accept=".xlsx,.xls" style="display:none" onchange="importaProdottiExcel(this)">
+      </div>
+      <table>
+        <thead><tr><th>Nome</th><th>Descrizione</th><th>Prezzo</th><th>Stock</th><th>Azioni</th></tr></thead>
+        <tbody id="tbody-prodotti"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CLIENTE -->
+<div id="modal-cliente" class="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-cliente-title">Nuovo Cliente</h3>
+    <input type="hidden" id="cliente-id">
+    <label>Nome *</label><input id="cliente-nome" placeholder="Mario Rossi">
+    <label>Email</label><input id="cliente-email" type="email" placeholder="mario@email.it">
+    <label>Telefono</label><input id="cliente-tel" placeholder="+39 333 000000">
+    <label>Indirizzo</label><input id="cliente-indirizzo" placeholder="Via Roma 1, Milano">
+    <div class="modal-actions">
+      <button onclick="closeModal('modal-cliente')">Annulla</button>
+      <button class="btn-primary" onclick="salvaCliente()">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PRODOTTO -->
+<div id="modal-prodotto" class="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-prodotto-title">Nuovo Prodotto</h3>
+    <input type="hidden" id="prodotto-id">
+    <label>Nome *</label><input id="prodotto-nome" placeholder="Es. Camicia">
+    <label>Descrizione</label><textarea id="prodotto-desc" placeholder="Descrizione prodotto..."></textarea>
+    <label>Prezzo (€) *</label><input id="prodotto-prezzo" type="number" step="0.01" placeholder="9.99">
+    <label>Stock</label><input id="prodotto-stock" type="number" placeholder="100">
+    <div class="modal-actions">
+      <button onclick="closeModal('modal-prodotto')">Annulla</button>
+      <button class="btn-primary" onclick="salvaProdotto()">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Cerca Cliente -->
+<div id="modal-ordine" class="modal-overlay">
+  <div class="modal" style="width:600px;">
+    <div class="step-header">
+      <h3>Nuovo Ordine — Scegli Cliente</h3>
+      <button onclick="closeModal('modal-ordine')" style="background:none;border:none;font-size:22px;color:#aaa;cursor:pointer;">✕</button>
+    </div>
+    <input id="cerca-cliente-input" placeholder="🔍  Cerca per nome o codice cliente..." oninput="filtraClientiOrdine(this.value)" autocomplete="off" style="font-size:15px;padding:11px 14px;">
+    <div id="lista-clienti-ordine" style="margin-top:10px;max-height:420px;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- MODAL: Cerca Articolo -->
+<div id="modal-cerca-art" class="modal-overlay">
+  <div class="modal" style="width:620px;">
+    <div class="step-header">
+      <h3>Aggiungi Articolo</h3>
+      <button onclick="closeModal('modal-cerca-art')" style="background:none;border:none;font-size:22px;color:#aaa;cursor:pointer;">✕</button>
+    </div>
+
+    <div id="art-search-view">
+      <input id="cerca-art-input" placeholder="🔍  Codice, nome, brand, grammi..." oninput="filtraArticoli(this.value)" autocomplete="off" style="font-size:15px;padding:11px 14px;">
+      <div id="lista-articoli" style="margin-top:10px;max-height:380px;overflow-y:auto;"></div>
+    </div>
+
+    <div id="art-qty-form" style="display:none;margin-top:4px;">
+      <div style="padding:14px;background:#f8fafc;border-radius:10px;border:1px solid #e5e7eb;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span id="art-selezionato-code" style="font-size:12px;font-weight:700;color:#4f8ef7;background:#eff6ff;padding:2px 8px;border-radius:5px;"></span>
+          <span id="art-selezionato-nome" style="font-weight:700;font-size:15px;"></span>
+        </div>
+        <div id="art-selezionato-sub" style="font-size:12px;color:#888;"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <label>Cartoni *</label>
+          <input id="art-qty" type="number" min="1" value="1" style="font-size:22px;font-weight:700;text-align:center;padding:12px;">
+        </div>
+        <div>
+          <label>Prezzo € *</label>
+          <input id="art-prezzo" type="number" step="0.01" min="0" placeholder="0.00" style="font-size:22px;font-weight:700;text-align:center;padding:12px;">
+        </div>
+      </div>
+      <div class="modal-actions" style="margin-top:16px;">
+        <button onclick="annullaArtQty()">← Cerca ancora</button>
+        <button class="btn-primary" style="font-size:15px;padding:10px 24px;" onclick="confermaArticolo()">Aggiungi ✓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ORDINE CREATO -->
+<div id="modal-ordine-ok" class="modal-overlay">
+  <div class="modal" style="width:420px;">
+    <div class="success-box">
+      <div class="icon">✅</div>
+      <h3>Ordine Creato!</h3>
+      <p id="ordine-ok-info"></p>
+      <p id="ordine-ok-email-stato" style="font-size:14px;color:#555;margin-top:-10px;margin-bottom:20px;"></p>
+      <button onclick="closeModal('modal-ordine-ok')" style="background:#f1f5f9;color:#555;padding:11px 24px;border-radius:10px;">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETTAGLIO ORDINE -->
+<div id="modal-dettaglio" class="modal-overlay">
+  <div class="modal" style="width:580px;">
+    <h3>Dettaglio Ordine <span id="dettaglio-id"></span></h3>
+    <div id="dettaglio-body"></div>
+    <div class="modal-actions">
+      <button onclick="closeModal('modal-dettaglio')">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- STORAGE ----
+const DB = {
+  get: k => JSON.parse(localStorage.getItem(k) || '[]'),
+  set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
+};
+
+function nextId(arr) { return arr.length ? Math.max(...arr.map(x => x.id)) + 1 : 1; }
+
+// ---- NAV ----
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const idx = ['dashboard','ordini','clienti','prodotti'].indexOf(name);
+  if (idx >= 0) document.querySelectorAll('.nav-item')[idx].classList.add('active');
+  if (name === 'dashboard') loadDashboard();
+  if (name === 'ordini') loadOrdini();
+  if (name === 'clienti') loadClienti();
+  if (name === 'prodotti') loadProdotti();
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ---- DASHBOARD ----
+function loadDashboard() {
+  const ordini = DB.get('ordini');
+  const clienti = DB.get('clienti');
+  const prodotti = DB.get('prodotti');
+  const inAttesa = ordini.filter(o => o.stato === 'in_attesa').length;
+  const fatturato = ordini.filter(o => o.stato === 'completato').reduce((s, o) => s + o.totale, 0);
+  document.getElementById('stat-ordini').textContent = ordini.length;
+  document.getElementById('stat-attesa').textContent = inAttesa;
+  document.getElementById('stat-clienti').textContent = clienti.length;
+  document.getElementById('stat-prodotti').textContent = prodotti.length;
+  document.getElementById('stat-fatturato').textContent = '€' + fatturato.toFixed(2);
+
+  const last5 = [...ordini].reverse().slice(0, 5);
+  const el = document.getElementById('ultimi-ordini');
+  if (!last5.length) { el.innerHTML = '<div class="empty">Nessun ordine ancora</div>'; return; }
+  el.innerHTML = `<table><thead><tr><th>#</th><th>Cliente</th><th>Stato</th><th>Totale</th><th>Data</th></tr></thead><tbody>
+    ${last5.map(o => `<tr>
+      <td>#${o.id}</td>
+      <td>${clienteNome(o.clienteId)}</td>
+      <td>${badgeStato(o.stato)}</td>
+      <td>€${o.totale.toFixed(2)}</td>
+      <td>${formatData(o.data)}</td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+// ---- ORDINI ----
+let allOrdini = [];
+
+function loadOrdini() {
+  allOrdini = [...DB.get('ordini')].reverse();
+  renderOrdini(allOrdini);
+}
+
+function renderOrdini(ordini) {
+  const tbody = document.getElementById('tbody-ordini');
+  if (!ordini.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">Nessun ordine</td></tr>'; return; }
+  tbody.innerHTML = ordini.map(o => `<tr>
+    <td>#${o.id}</td>
+    <td>${clienteNome(o.clienteId)}</td>
+    <td>
+      <select class="stato-select" onchange="cambiaStato(${o.id}, this.value)">
+        ${['in_attesa','completato','annullato'].map(s =>
+          `<option value="${s}" ${o.stato===s?'selected':''}>${s.replace('_',' ')}</option>`
+        ).join('')}
+      </select>
+      ${badgeStato(o.stato)}
+    </td>
+    <td>€${o.totale.toFixed(2)}</td>
+    <td>${formatData(o.data)}</td>
+    <td style="white-space:nowrap;">
+      <button class="btn-sm btn-primary" onclick="vedDettaglio(${o.id})">Vedi</button>
+      <button class="btn-sm btn-danger" onclick="eliminaOrdine(${o.id})" style="margin-left:4px;">Elimina</button>
+    </td>
+  </tr>`).join('');
+}
+
+function filterOrdini(q) {
+  const ql = q.toLowerCase();
+  renderOrdini(allOrdini.filter(o =>
+    clienteNome(o.clienteId).toLowerCase().includes(ql) ||
+    String(o.id).includes(ql) || o.stato.includes(ql)
+  ));
+}
+
+function cambiaStato(id, stato) {
+  const ordini = DB.get('ordini');
+  const o = ordini.find(x => x.id === id);
+  if (o) { o.stato = stato; DB.set('ordini', ordini); }
+  loadOrdini();
+}
+
+function eliminaOrdine(id) {
+  if (!confirm('Eliminare ordine #' + id + '?')) return;
+  DB.set('ordini', DB.get('ordini').filter(o => o.id !== id));
+  loadOrdini();
+}
+
+function vedDettaglio(id) {
+  const o = DB.get('ordini').find(x => x.id === id);
+  if (!o) return;
+  const c = DB.get('clienti').find(x => x.id === o.clienteId);
+  const prodotti = DB.get('prodotti');
+  document.getElementById('dettaglio-id').textContent = '#' + o.id;
+  document.getElementById('dettaglio-body').innerHTML = `
+    <div style="margin-bottom:10px;"><b>Cliente:</b> ${c ? c.nome : '-'} ${c && c.email ? '('+c.email+')' : ''}</div>
+    <div style="margin-bottom:10px;"><b>Stato:</b> ${badgeStato(o.stato)}</div>
+    <div style="margin-bottom:10px;"><b>Data:</b> ${formatData(o.data)}</div>
+    ${o.note ? `<div style="margin-bottom:10px;"><b>Note:</b> ${o.note}</div>` : ''}
+    <table style="margin-top:12px;">
+      <thead><tr><th>Prodotto</th><th>Quantità</th><th>Prezzo unit.</th><th>Subtotale</th></tr></thead>
+      <tbody>
+        ${o.righe.map(r => {
+          const p = prodotti.find(x => x.id === r.prodottoId);
+          return `<tr>
+            <td>${p ? p.nome : 'Prodotto rimosso'}</td>
+            <td>${r.quantita}</td>
+            <td>€${r.prezzo.toFixed(2)}</td>
+            <td>€${(r.quantita * r.prezzo).toFixed(2)}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    <div style="text-align:right; font-weight:700; font-size:18px; margin-top:12px; color:#4f8ef7;">Totale: €${o.totale.toFixed(2)}</div>
+  `;
+  openModal('modal-dettaglio');
+}
+
+// ---- NUOVO ORDINE ----
+let wizardClienteId = null;
+let wizardRighe = [];
+let wizardArtSelezionato = null;
+
+function openNuovoOrdine() {
+  if (!DB.get('clienti').length) { alert('Aggiungi almeno un cliente prima.'); return; }
+  if (!DB.get('prodotti').length) { alert('Aggiungi almeno un prodotto prima.'); return; }
+  wizardClienteId = null;
+  wizardRighe = [];
+  wizardArtSelezionato = null;
+  document.getElementById('cerca-cliente-input').value = '';
+  filtraClientiOrdine('');
+  openModal('modal-ordine');
+  setTimeout(() => document.getElementById('cerca-cliente-input').focus(), 100);
+}
+
+function filtraClientiOrdine(q) {
+  const clienti = DB.get('clienti');
+  const ql = q.toLowerCase();
+  const filtered = ql
+    ? clienti.filter(c =>
+        c.nome.toLowerCase().includes(ql) ||
+        (c.codice||'').toLowerCase().includes(ql) ||
+        String(c.id).includes(ql) ||
+        (c.partitaIva||'').toLowerCase().includes(ql))
+    : clienti;
+  const el = document.getElementById('lista-clienti-ordine');
+  if (!filtered.length) { el.innerHTML = '<div class="no-results">Nessun cliente trovato</div>'; return; }
+  el.innerHTML = filtered.map(c => `
+    <div class="search-item" onclick="selezionaCliente(${c.id})">
+      <div class="item-left">
+        <div class="item-title">${c.nome}</div>
+        <div class="item-sub">${[c.indirizzo, c.partitaIva].filter(Boolean).join(' · ') || ''}</div>
+      </div>
+      ${c.codice ? `<span class="item-code">${c.codice}</span>` : `<span class="item-code">#${c.id}</span>`}
+    </div>`).join('');
+}
+
+function selezionaCliente(id) {
+  const c = DB.get('clienti').find(x => x.id === id);
+  wizardClienteId = id;
+  closeModal('modal-ordine');
+  document.getElementById('np-cliente-code').textContent = c.codice || ('#' + c.id);
+  document.getElementById('np-cliente-nome').textContent = c.nome;
+  document.getElementById('np-cliente-info').textContent = [c.indirizzo, c.partitaIva].filter(Boolean).join(' · ');
+  document.getElementById('np-note').value = '';
+  renderRighe();
+  showPage('ordine-nuovo');
+}
+
+function cambiaClienteOrdine() {
+  document.getElementById('cerca-cliente-input').value = '';
+  filtraClientiOrdine('');
+  openModal('modal-ordine');
+  setTimeout(() => document.getElementById('cerca-cliente-input').focus(), 100);
+}
+
+function annullaOrdineNuovo() {
+  showPage('ordini');
+}
+
+function renderRighe() {
+  const prodotti = DB.get('prodotti');
+  const el = document.getElementById('np-righe');
+  if (!wizardRighe.length) {
+    el.innerHTML = '<div style="color:#aaa;font-size:14px;text-align:center;padding:24px;">Nessun articolo aggiunto ancora</div>';
+    document.getElementById('np-totale').textContent = '';
+    return;
+  }
+  el.innerHTML = wizardRighe.map((r, i) => {
+    const p = prodotti.find(x => x.id === r.prodottoId);
+    const subtot = r.prezzo * r.quantita;
+    return `<div class="riga-ordine">
+      <span class="art-code">${p && p.codice ? p.codice : (p ? '#'+p.id : '?')}</span>
+      <div><div class="art-nome">${p ? p.nome : '?'}</div><div class="art-sub">${p ? (p.descrizione||'') : ''}</div></div>
+      <div class="art-val">${r.quantita} crt.</div>
+      <div class="art-val">€${r.prezzo.toFixed(2)}</div>
+      <button class="art-del" onclick="rimuoviRiga(${i})">✕</button>
+    </div>`;
+  }).join('');
+  const totale = wizardRighe.reduce((s, r) => s + r.prezzo * r.quantita, 0);
+  document.getElementById('np-totale').textContent = 'Totale: €' + totale.toFixed(2);
+}
+
+function rimuoviRiga(i) { wizardRighe.splice(i, 1); renderRighe(); }
+
+function openCercaArticolo() {
+  wizardArtSelezionato = null;
+  document.getElementById('cerca-art-input').value = '';
+  document.getElementById('art-qty-form').style.display = 'none';
+  document.getElementById('art-search-view').style.display = '';
+  filtraArticoli('');
+  openModal('modal-cerca-art');
+  setTimeout(() => document.getElementById('cerca-art-input').focus(), 100);
+}
+
+function filtraArticoli(q) {
+  const prodotti = DB.get('prodotti');
+  const ql = q.toLowerCase();
+  const filtered = ql
+    ? prodotti.filter(p =>
+        p.nome.toLowerCase().includes(ql) ||
+        (p.codice||'').toLowerCase().includes(ql) ||
+        (p.descrizione||'').toLowerCase().includes(ql))
+    : prodotti;
+  const el = document.getElementById('lista-articoli');
+  if (!filtered.length) { el.innerHTML = '<div class="no-results">Nessun articolo trovato</div>'; return; }
+  el.innerHTML = filtered.map(p => `
+    <div class="search-item" onclick="selezionaArticolo(${p.id})">
+      <div class="item-left">
+        <div class="item-title">${p.nome}</div>
+        <div class="item-sub">${p.descrizione || ''}${p.prezzo > 0 ? ' · €'+p.prezzo.toFixed(2) : ''}</div>
+      </div>
+      <span class="item-code">${p.codice || ('#'+p.id)}</span>
+    </div>`).join('');
+}
+
+function selezionaArticolo(id) {
+  const p = DB.get('prodotti').find(x => x.id === id);
+  wizardArtSelezionato = p;
+  document.getElementById('art-selezionato-code').textContent = p.codice || ('#' + p.id);
+  document.getElementById('art-selezionato-nome').textContent = p.nome;
+  document.getElementById('art-selezionato-sub').textContent = p.descrizione || '';
+  document.getElementById('art-qty').value = 1;
+  document.getElementById('art-prezzo').value = p.prezzo > 0 ? p.prezzo.toFixed(2) : '';
+  document.getElementById('art-search-view').style.display = 'none';
+  document.getElementById('art-qty-form').style.display = '';
+  setTimeout(() => document.getElementById('art-qty').focus(), 80);
+}
+
+function annullaArtQty() {
+  wizardArtSelezionato = null;
+  document.getElementById('art-qty-form').style.display = 'none';
+  document.getElementById('art-search-view').style.display = '';
+  document.getElementById('cerca-art-input').value = '';
+  filtraArticoli('');
+  setTimeout(() => document.getElementById('cerca-art-input').focus(), 80);
+}
+
+function confermaArticolo() {
+  const qty = parseInt(document.getElementById('art-qty').value);
+  const prezzo = parseFloat(document.getElementById('art-prezzo').value);
+  if (!qty || qty < 1) { alert('Inserisci un numero di cartoni valido'); return; }
+  if (isNaN(prezzo) || prezzo < 0) { alert('Inserisci un prezzo valido'); return; }
+  wizardRighe.push({ prodottoId: wizardArtSelezionato.id, quantita: qty, prezzo });
+  closeModal('modal-cerca-art');
+  renderRighe();
+}
+
+function salvaOrdine() {
+  if (!wizardClienteId) { alert('Seleziona un cliente'); return; }
+  if (!wizardRighe.length) { alert('Aggiungi almeno un articolo'); return; }
+  const totale = wizardRighe.reduce((s, r) => s + r.prezzo * r.quantita, 0);
+  const ordini = DB.get('ordini');
+  const nuovoId = nextId(ordini);
+  const c = DB.get('clienti').find(x => x.id === wizardClienteId);
+  const prodotti = DB.get('prodotti');
+  const note = document.getElementById('np-note').value;
+  ordini.push({ id: nuovoId, clienteId: wizardClienteId, righe: wizardRighe, totale, stato: 'in_attesa', note, data: new Date().toISOString() });
+  DB.set('ordini', ordini);
+  showPage('ordini');
+
+  const articoli = wizardRighe.map(r => {
+    const p = prodotti.find(x => x.id === r.prodottoId);
+    return { codice: p && p.codice ? p.codice : ('#'+r.prodottoId), nome: p ? p.nome : '?', quantita: r.quantita, prezzo: r.prezzo };
+  });
+  document.getElementById('ordine-ok-info').textContent = `Ordine #${nuovoId} per ${c ? c.nome : ''} — Totale €${totale.toFixed(2)}`;
+  document.getElementById('ordine-ok-email-stato').textContent = '📧 Invio email in corso...';
+  openModal('modal-ordine-ok');
+
+  const payload = {
+    ordineId: nuovoId,
+    clienteNome: c ? c.nome : '',
+    clienteCodice: c ? (c.codice || '') : '',
+    articoli,
+    totale,
+    note,
+    data: new Date().toLocaleString('it-IT'),
+  };
+  inviaEmailOrdine(payload, document.getElementById('ordine-ok-email-stato'));
+}
+
+// ---- SISTEMA EMAIL CON CODA ----
+function inviaEmailOrdine(payload, statoEl) {
+  if (statoEl) statoEl.textContent = '📧 Invio email in corso...';
+  fetch('/api/send-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(r => r.json())
+  .then(r => {
+    if (r.ok) {
+      if (statoEl) statoEl.textContent = '✅ Email inviata a jawad@freshtropical.it';
+    } else {
+      aggiungiCoda(payload);
+      if (statoEl) statoEl.textContent = '⚠️ Errore invio — salvata in coda, verrà inviata al prossimo avvio';
+    }
+  })
+  .catch(() => {
+    aggiungiCoda(payload);
+    if (statoEl) statoEl.innerHTML = '🕐 Server non attivo — email salvata in coda<br><small style="color:#888;">Si invierà automaticamente al prossimo avvio di avvia.bat</small>';
+  });
+}
+
+function aggiungiCoda(payload) {
+  const coda = JSON.parse(localStorage.getItem('emailCoda') || '[]');
+  if (!coda.find(x => x.ordineId === payload.ordineId)) {
+    coda.push(payload);
+    localStorage.setItem('emailCoda', JSON.stringify(coda));
+  }
+  aggiornaContatoreCoda();
+}
+
+function aggiornaContatoreCoda() {
+  const coda = JSON.parse(localStorage.getItem('emailCoda') || '[]');
+  const el = document.getElementById('coda-badge');
+  if (el) {
+    el.textContent = coda.length > 0 ? coda.length : '';
+    el.style.display = coda.length > 0 ? '' : 'none';
+  }
+}
+
+function svuotaCodaEmail() {
+  const coda = JSON.parse(localStorage.getItem('emailCoda') || '[]');
+  if (!coda.length) return;
+  let inviati = 0;
+  let idx = 0;
+  function prossima() {
+    if (idx >= coda.length) {
+      if (inviati > 0) {
+        alert(`✅ ${inviati} email in coda inviate con successo!`);
+        aggiornaContatoreCoda();
+      }
+      return;
+    }
+    const payload = coda[idx];
+    fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(r => {
+      if (r.ok) {
+        inviati++;
+        const codaAggiornata = JSON.parse(localStorage.getItem('emailCoda') || '[]');
+        const nuovaCoda = codaAggiornata.filter(x => x.ordineId !== payload.ordineId);
+        localStorage.setItem('emailCoda', JSON.stringify(nuovaCoda));
+      }
+      idx++;
+      prossima();
+    })
+    .catch(() => { idx++; prossima(); });
+  }
+  prossima();
+}
+
+function controllaServerECoda() {
+  const coda = JSON.parse(localStorage.getItem('emailCoda') || '[]');
+  const statoEl = document.getElementById('server-stato');
+  const btnCoda = document.getElementById('btn-invia-coda');
+  fetch('/api/send-email', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({_ping: true}) })
+    .then(() => {
+      if (statoEl) { statoEl.textContent = '🟢 Server attivo'; statoEl.style.color = '#4ade80'; }
+      if (btnCoda) btnCoda.style.display = 'none';
+      if (coda.length) svuotaCodaEmail();
+    })
+    .catch(() => {
+      if (statoEl) { statoEl.textContent = '🔴 Server non attivo'; statoEl.style.color = '#f87171'; }
+      if (btnCoda) btnCoda.style.display = coda.length ? '' : 'none';
+    });
+}
+
+// ---- CLIENTI ----
+function loadClienti() {
+  const clienti = DB.get('clienti');
+  const tbody = document.getElementById('tbody-clienti');
+  if (!clienti.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Nessun cliente</td></tr>'; return; }
+  tbody.innerHTML = clienti.map(c => `<tr>
+    <td>${c.nome}</td>
+    <td>${c.email || '-'}</td>
+    <td>${c.telefono || '-'}</td>
+    <td>${c.indirizzo || '-'}</td>
+    <td style="white-space:nowrap;">
+      <button class="btn-sm btn-primary" onclick="openModificaCliente(${c.id})">Modifica</button>
+      <button class="btn-sm btn-danger" onclick="eliminaCliente(${c.id})" style="margin-left:4px;">Elimina</button>
+    </td>
+  </tr>`).join('');
+}
+
+function openNuovoCliente() {
+  document.getElementById('modal-cliente-title').textContent = 'Nuovo Cliente';
+  document.getElementById('cliente-id').value = '';
+  ['nome','email','tel','indirizzo'].forEach(f => document.getElementById('cliente-' + f).value = '');
+  openModal('modal-cliente');
+}
+
+function openModificaCliente(id) {
+  const c = DB.get('clienti').find(x => x.id === id);
+  document.getElementById('modal-cliente-title').textContent = 'Modifica Cliente';
+  document.getElementById('cliente-id').value = c.id;
+  document.getElementById('cliente-nome').value = c.nome;
+  document.getElementById('cliente-email').value = c.email || '';
+  document.getElementById('cliente-tel').value = c.telefono || '';
+  document.getElementById('cliente-indirizzo').value = c.indirizzo || '';
+  openModal('modal-cliente');
+}
+
+function salvaCliente() {
+  const nome = document.getElementById('cliente-nome').value.trim();
+  if (!nome) { alert('Il nome è obbligatorio'); return; }
+  const id = parseInt(document.getElementById('cliente-id').value) || null;
+  const clienti = DB.get('clienti');
+  const obj = { nome, email: document.getElementById('cliente-email').value, telefono: document.getElementById('cliente-tel').value, indirizzo: document.getElementById('cliente-indirizzo').value };
+  if (id) {
+    const i = clienti.findIndex(x => x.id === id);
+    clienti[i] = { ...clienti[i], ...obj };
+  } else {
+    clienti.push({ id: nextId(clienti), ...obj });
+  }
+  DB.set('clienti', clienti);
+  closeModal('modal-cliente');
+  loadClienti();
+}
+
+function eliminaCliente(id) {
+  if (!confirm('Eliminare questo cliente?')) return;
+  DB.set('clienti', DB.get('clienti').filter(c => c.id !== id));
+  loadClienti();
+}
+
+// ---- IMPORTA EXCEL ----
+function importaClientiExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const wb = XLSX.read(e.target.result, { type: 'array' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+    if (!rows.length) { alert('Nessun dato trovato nel file.'); return; }
+
+    // Mappa flessibile: cerca le colonne per nome (case-insensitive)
+    const col = (row, ...keys) => {
+      for (const k of keys) {
+        const found = Object.keys(row).find(h => h.toLowerCase().includes(k.toLowerCase()));
+        if (found && row[found] !== '') return String(row[found]).trim();
+      }
+      return '';
+    };
+
+    const clienti = DB.get('clienti');
+    let aggiunti = 0, saltati = 0;
+    for (const row of rows) {
+      const nome = col(row, 'nome', 'cliente', 'ragione', 'company');
+      if (!nome) { saltati++; continue; }
+      const via = col(row, 'via', 'indirizzo', 'address', 'street');
+      const localita = col(row, 'local', 'città', 'city', 'comune');
+      const cap = col(row, 'cap', 'zip', 'postal');
+      const provincia = col(row, 'rg', 'prov', 'region');
+      const piva = col(row, 'partita', 'iva', 'vat', 'p.iva');
+      const email = col(row, 'email', 'mail');
+      const tel = col(row, 'tel', 'phone', 'cellulare');
+
+      const indirizzo = [via, localita, cap, provincia].filter(Boolean).join(', ');
+      const codice = col(row, 'cliente', 'codice', 'code', 'cod.');
+      clienti.push({ id: nextId(clienti), codice, nome, email, telefono: tel, indirizzo, partitaIva: piva });
+      aggiunti++;
+    }
+    DB.set('clienti', clienti);
+    input.value = '';
+    loadClienti();
+    alert(`Importazione completata!\n✅ ${aggiunti} clienti aggiunti\n⏭️ ${saltati} righe saltate (senza nome)`);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ---- PRODOTTI ----
+function loadProdotti() {
+  const prodotti = DB.get('prodotti');
+  const tbody = document.getElementById('tbody-prodotti');
+  if (!prodotti.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Nessun prodotto</td></tr>'; return; }
+  tbody.innerHTML = prodotti.map(p => `<tr>
+    <td>${p.nome}</td>
+    <td>${p.descrizione || '-'}</td>
+    <td>€${p.prezzo.toFixed(2)}</td>
+    <td>${p.stock}</td>
+    <td style="white-space:nowrap;">
+      <button class="btn-sm btn-primary" onclick="openModificaProdotto(${p.id})">Modifica</button>
+      <button class="btn-sm btn-danger" onclick="eliminaProdotto(${p.id})" style="margin-left:4px;">Elimina</button>
+    </td>
+  </tr>`).join('');
+}
+
+function openNuovoProdotto() {
+  document.getElementById('modal-prodotto-title').textContent = 'Nuovo Prodotto';
+  document.getElementById('prodotto-id').value = '';
+  ['nome','desc','prezzo','stock'].forEach(f => document.getElementById('prodotto-' + f).value = '');
+  openModal('modal-prodotto');
+}
+
+function openModificaProdotto(id) {
+  const p = DB.get('prodotti').find(x => x.id === id);
+  document.getElementById('modal-prodotto-title').textContent = 'Modifica Prodotto';
+  document.getElementById('prodotto-id').value = p.id;
+  document.getElementById('prodotto-nome').value = p.nome;
+  document.getElementById('prodotto-desc').value = p.descrizione || '';
+  document.getElementById('prodotto-prezzo').value = p.prezzo;
+  document.getElementById('prodotto-stock').value = p.stock;
+  openModal('modal-prodotto');
+}
+
+function salvaProdotto() {
+  const nome = document.getElementById('prodotto-nome').value.trim();
+  const prezzo = parseFloat(document.getElementById('prodotto-prezzo').value);
+  if (!nome || isNaN(prezzo)) { alert('Nome e prezzo sono obbligatori'); return; }
+  const id = parseInt(document.getElementById('prodotto-id').value) || null;
+  const prodotti = DB.get('prodotti');
+  const obj = { nome, descrizione: document.getElementById('prodotto-desc').value, prezzo, stock: parseInt(document.getElementById('prodotto-stock').value) || 0 };
+  if (id) {
+    const i = prodotti.findIndex(x => x.id === id);
+    prodotti[i] = { ...prodotti[i], ...obj };
+  } else {
+    prodotti.push({ id: nextId(prodotti), ...obj });
+  }
+  DB.set('prodotti', prodotti);
+  closeModal('modal-prodotto');
+  loadProdotti();
+}
+
+function eliminaProdotto(id) {
+  if (!confirm('Eliminare questo prodotto?')) return;
+  DB.set('prodotti', DB.get('prodotti').filter(p => p.id !== id));
+  loadProdotti();
+}
+
+// ---- IMPORTA EXCEL PRODOTTI ----
+function importaProdottiExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const wb = XLSX.read(e.target.result, { type: 'array' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+    if (!rows.length) { alert('Nessun dato trovato nel file.'); return; }
+
+    const col = (row, ...keys) => {
+      for (const k of keys) {
+        const found = Object.keys(row).find(h => h.toLowerCase().includes(k.toLowerCase()));
+        if (found && row[found] !== '') return row[found];
+      }
+      return '';
+    };
+
+    const prodotti = DB.get('prodotti');
+    let aggiunti = 0, saltati = 0;
+    for (const row of rows) {
+      const nome = String(col(row, 'descrizione', 'nome', 'name', 'prodotto') || '').trim();
+      if (!nome) { saltati++; continue; }
+      const codice = String(col(row, 'materiale', 'codice', 'sku', 'cod') || '').trim();
+      const prezzoRaw = col(row, 'prezzo', 'price', 'costo');
+      const prezzo = parseFloat(prezzoRaw) || 0;
+      const um = String(col(row, 'unità', 'unita', 'um', 'unit') || '').trim();
+      const descrizione = [codice, um].filter(Boolean).join(' | ');
+      prodotti.push({ id: nextId(prodotti), codice, nome, descrizione, prezzo, stock: 0 });
+      aggiunti++;
+    }
+    DB.set('prodotti', prodotti);
+    input.value = '';
+    loadProdotti();
+    alert(`Importazione completata!\n✅ ${aggiunti} prodotti aggiunti\n⏭️ ${saltati} righe saltate`);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ---- UTILS ----
+function clienteNome(id) {
+  const c = DB.get('clienti').find(x => x.id === id);
+  return c ? c.nome : '-';
+}
+
+function badgeStato(stato) {
+  const map = { in_attesa: 'badge-attesa', completato: 'badge-completato', annullato: 'badge-annullato' };
+  const labels = { in_attesa: 'In Attesa', completato: 'Completato', annullato: 'Annullato' };
+  return `<span class="badge ${map[stato]||''}">${labels[stato]||stato}</span>`;
+}
+
+function formatData(d) {
+  if (!d) return '-';
+  return new Date(d).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+loadDashboard();
+aggiornaContatoreCoda();
+controllaServerECoda();
+setInterval(controllaServerECoda, 60000);
+</script>
+</body>
+</html>
