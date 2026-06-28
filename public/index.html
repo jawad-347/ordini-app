@@ -176,9 +176,11 @@
     .art-del { min-height: unset; }
     .hamburger, .stato-select { min-height: unset; }
 
-    /* Tables: horizontal scroll */
-    table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    /* Tables: horizontal scroll — min-width forces real scroll instead of squeezing */
+    table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; min-width: 520px; }
     th, td { white-space: nowrap; }
+    /* Badge ridondante nella tabella ordini (c'è già il select) */
+    #tbody-ordini .badge { display: none; }
 
     /* Order row: tighter grid */
     .riga-ordine { grid-template-columns: auto 1fr 56px 68px 32px; gap: 5px; padding: 8px; }
