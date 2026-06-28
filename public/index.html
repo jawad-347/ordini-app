@@ -2,7 +2,10 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#1a1f2e">
 <title>Gestione Ordini</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
@@ -130,11 +133,83 @@
   .success-box p { color: #666; font-size: 14px; margin-bottom: 20px; }
   .btn-email { background: #4f8ef7; color: #fff; font-size: 15px; padding: 11px 24px; border-radius: 10px; text-decoration: none; display: inline-block; margin-right: 8px; }
   .btn-email:hover { background: #3a7de8; }
+
+  /* ===== HAMBURGER & SIDEBAR OVERLAY ===== */
+  .hamburger {
+    display: none; position: fixed; top: 14px; left: 14px; z-index: 200;
+    background: #1a1f2e; color: #fff; border: none; border-radius: 8px;
+    padding: 10px 13px; font-size: 20px; line-height: 1; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,.35); min-height: unset;
+  }
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 149;
+  }
+  .sidebar-overlay.open { display: block; }
+  .sidebar { transition: transform .25s ease; z-index: 150; }
+
+  /* ===== RESPONSIVE — iPHONE / iPAD ===== */
+  @media (max-width: 768px) {
+    .hamburger { display: block; }
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+
+    .main { margin-left: 0; padding: 70px 14px 32px; min-height: 100svh; }
+
+    h1 { font-size: 20px; margin-bottom: 16px; }
+
+    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+    .stat-card { padding: 14px; }
+    .stat-card .value { font-size: 22px; }
+
+    .card { padding: 14px; }
+
+    /* Toolbar: stack vertically, full width */
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .toolbar > div { flex-direction: column !important; align-items: stretch !important; width: 100%; }
+    .toolbar input, .toolbar button { width: 100%; }
+    .search-input { width: 100% !important; }
+
+    /* Touch targets */
+    button { min-height: 44px; }
+    .btn-sm { min-height: 36px; font-size: 12px; }
+    .nav-item { min-height: 50px; }
+    .art-del { min-height: unset; }
+    .hamburger, .stato-select { min-height: unset; }
+
+    /* Tables: horizontal scroll */
+    table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    th, td { white-space: nowrap; }
+
+    /* Order row: tighter grid */
+    .riga-ordine { grid-template-columns: auto 1fr 56px 68px 32px; gap: 5px; padding: 8px; }
+
+    /* Client card in new order: stack */
+    .ordine-cliente-card { flex-direction: column; align-items: flex-start; }
+    .ordine-cliente-card > button { width: 100%; }
+
+    /* Modals: more padding-friendly */
+    .modal { padding: 20px 14px; }
+
+    /* Nuovoordine header row */
+    #page-ordine-nuovo > div:first-child { flex-wrap: wrap; }
+
+    /* Safe area on iPhone (notch/home bar) */
+    body { padding-bottom: env(safe-area-inset-bottom); }
+  }
+
+  @media (max-width: 400px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .riga-ordine { grid-template-columns: auto 1fr 48px 60px 28px; gap: 3px; }
+    .main { padding: 70px 10px 28px; }
+  }
 </style>
 </head>
 <body>
 
-<div class="sidebar">
+<button class="hamburger" onclick="toggleSidebar()" id="hamburger-btn">☰</button>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
   <div class="sidebar-logo"><span>📦</span> Ordini</div>
   <nav>
     <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">🏠</span> Dashboard</div>
@@ -389,6 +464,16 @@ function showPage(name) {
   if (name === 'ordini') loadOrdini();
   if (name === 'clienti') loadClienti();
   if (name === 'prodotti') loadProdotti();
+  closeSidebar();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
 }
 
 function openModal(id) { document.getElementById(id).classList.add('open'); }
