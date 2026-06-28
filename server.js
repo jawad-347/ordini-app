@@ -71,12 +71,10 @@ app.post('/api/clienti', async (req, res) => {
 
 app.post('/api/clienti/bulk', async (req, res) => {
   const { clienti } = req.body;
-  for (const c of clienti) {
-    await pool.query(
-      'INSERT INTO clienti (codice,nome,email,telefono,indirizzo,partitaiva) VALUES ($1,$2,$3,$4,$5,$6)',
-      [c.codice||'', c.nome, c.email||'', c.telefono||'', c.indirizzo||'', c.partitaIva||'']
-    );
-  }
+  if (!clienti.length) return res.json({ ok: true, count: 0 });
+  const vals = clienti.map((c, i) => `($${i*6+1},$${i*6+2},$${i*6+3},$${i*6+4},$${i*6+5},$${i*6+6})`).join(',');
+  const params = clienti.flatMap(c => [c.codice||'', c.nome, c.email||'', c.telefono||'', c.indirizzo||'', c.partitaIva||'']);
+  await pool.query(`INSERT INTO clienti (codice,nome,email,telefono,indirizzo,partitaiva) VALUES ${vals}`, params);
   res.json({ ok: true, count: clienti.length });
 });
 
@@ -111,12 +109,10 @@ app.post('/api/prodotti', async (req, res) => {
 
 app.post('/api/prodotti/bulk', async (req, res) => {
   const { prodotti } = req.body;
-  for (const p of prodotti) {
-    await pool.query(
-      'INSERT INTO prodotti (codice,nome,descrizione,prezzo,stock) VALUES ($1,$2,$3,$4,$5)',
-      [p.codice||'', p.nome, p.descrizione||'', p.prezzo||0, p.stock||0]
-    );
-  }
+  if (!prodotti.length) return res.json({ ok: true, count: 0 });
+  const vals = prodotti.map((p, i) => `($${i*5+1},$${i*5+2},$${i*5+3},$${i*5+4},$${i*5+5})`).join(',');
+  const params = prodotti.flatMap(p => [p.codice||'', p.nome, p.descrizione||'', p.prezzo||0, p.stock||0]);
+  await pool.query(`INSERT INTO prodotti (codice,nome,descrizione,prezzo,stock) VALUES ${vals}`, params);
   res.json({ ok: true, count: prodotti.length });
 });
 
