@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
-const nodemailer = require('nodemailer');
 const path = require('path');
 const { Pool } = require('pg');
 
@@ -292,14 +291,6 @@ app.delete('/api/ordini/:id', requireAuth, async (req, res) => {
 });
 
 // ---- EMAIL ----
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT),
-  secure: parseInt(process.env.SMTP_PORT) === 465,
-  auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-  tls: { rejectUnauthorized: false },
-});
-
 app.post('/api/send-email', requireAuth, async (req, res) => {
   if (req.body._ping) return res.json({ ok: true });
   const { ordineId, clienteNome, clienteCodice, articoli, totale, note, data } = req.body;
@@ -350,17 +341,39 @@ app.post('/api/send-email', requireAuth, async (req, res) => {
   const text = `Ordine #${ordineId} - ${data}\nCliente: ${clienteNome} ${clienteCodice ? '('+clienteCodice+')' : ''}\n\nArticoli:\n${righeText}\n\nTotale: €${parseFloat(totale).toFixed(2)}\n${note ? '\nNote: '+note : ''}`;
 
   try {
-    await transporter.sendMail({
-      from: `"Fresh Tropical Ordini" <${process.env.EMAIL_FROM}>`,
-      to: process.env.EMAIL_TO,
-      subject: `Ordine #${ordineId} - ${clienteNome}`,
-      text,
-      html,
-    });
-    res.json({ ok: true });
+    const apiKey = process.env.BREVO_API_KEY;
+    if (!apiKey) return res.status(500).json({ ok: false, error: 'BREVO_API_KEY non configurata' });
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    let brevoRes;
+    try {
+      brevoRes = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'api-key': apiKey },
+        body: JSON.stringify({
+          sender: { email: process.env.EMAIL_FROM || 'noreply@freshtropical.it', name: 'Fresh Tropical Ordini' },
+          to: [{ email: process.env.EMAIL_TO || process.env.EMAIL_FROM }],
+          subject: `Ordine #${ordineId} - ${clienteNome}`,
+          htmlContent: html,
+          textContent: text,
+        }),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
+
+    const body = await brevoRes.text();
+    if (brevoRes.ok) {
+      res.json({ ok: true });
+    } else {
+      console.error('Brevo API error:', brevoRes.status, body);
+      res.status(500).json({ ok: false, error: `Brevo ${brevoRes.status}: ${body.substring(0, 120)}` });
+    }
   } catch (err) {
     console.error('Email error:', err.message);
-    res.status(500).json({ ok: false, error: err.message });
+    res.status(500).json({ ok: false, error: err.name === 'AbortError' ? 'Timeout connessione Brevo' : err.message });
   }
 });
 
