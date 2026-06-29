@@ -100,7 +100,7 @@ app.get('/reset-admin-ft2024', async (req, res) => {
     );
     res.send('OK - Utente admin-jawad creato. Vai su /');
   } catch (e) {
-    res.status(500).send('Errore: ' + e.message);
+    res.status(500).send('Errore: ' + String(e) + ' | ' + JSON.stringify(e));
   }
 });
 
