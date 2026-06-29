@@ -89,6 +89,21 @@ function requireAuth(req, res, next) {
   res.status(401).json({ error: 'Non autenticato' });
 }
 
+// ---- RESET ADMIN (usa una volta sola, poi rimuovi) ----
+app.get('/reset-admin-ft2024', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM utenti');
+    const hash = await bcrypt.hash('admin123456', 10);
+    await pool.query(
+      'INSERT INTO utenti (username, password_hash, nome, is_admin) VALUES ($1,$2,$3,true)',
+      ['admin-jawad', hash, 'Jawad Admin']
+    );
+    res.send('OK - Utente admin-jawad creato. Vai su /');
+  } catch (e) {
+    res.status(500).send('Errore: ' + e.message);
+  }
+});
+
 // ---- AUTH ----
 app.post('/api/auth/login', async (req, res) => {
   try {
