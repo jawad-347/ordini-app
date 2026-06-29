@@ -89,6 +89,43 @@ function requireAuth(req, res, next) {
   res.status(401).json({ error: 'Non autenticato' });
 }
 
+// ---- TEST SMTP ----
+app.get('/test-smtp', async (req, res) => {
+  const net = require('net');
+  const host = process.env.SMTP_HOST || 'non impostato';
+  const port = parseInt(process.env.SMTP_PORT) || 587;
+  const user = process.env.SMTP_USER || 'non impostato';
+  const emailTo = process.env.EMAIL_TO || 'non impostato';
+
+  const tcpTest = () => new Promise((resolve) => {
+    const s = net.createConnection({ host, port, timeout: 8000 });
+    s.on('connect', () => { s.destroy(); resolve('OK connesso'); });
+    s.on('timeout', () => { s.destroy(); resolve('TIMEOUT'); });
+    s.on('error', (e) => resolve('ERRORE: ' + e.message));
+  });
+
+  const tcpResult = await tcpTest();
+
+  let smtpResult = 'non testato';
+  if (tcpResult === 'OK connesso') {
+    try {
+      const nodemailer = require('nodemailer');
+      const t = nodemailer.createTransport({
+        host, port, secure: false,
+        auth: { user, pass: process.env.SMTP_PASS },
+        tls: { rejectUnauthorized: false },
+        connectionTimeout: 10000,
+      });
+      await t.verify();
+      smtpResult = 'OK autenticato';
+    } catch (e) {
+      smtpResult = 'ERRORE: ' + e.message;
+    }
+  }
+
+  res.json({ host, port, user, emailTo, tcp: tcpResult, smtp: smtpResult });
+});
+
 // ---- RESET ADMIN (usa una volta sola, poi rimuovi) ----
 app.get('/reset-admin-ft2024', async (req, res) => {
   try {
