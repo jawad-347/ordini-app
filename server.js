@@ -72,8 +72,8 @@ async function initDB() {
   // Crea admin di default se non ci sono utenti
   const { rows } = await pool.query('SELECT COUNT(*) FROM utenti');
   if (parseInt(rows[0].count) === 0) {
-    const u = process.env.ADMIN_USER || 'admin';
-    const p = process.env.ADMIN_PASS || 'admin123';
+    const u = process.env.ADMIN_USER || 'admin-jawad';
+    const p = process.env.ADMIN_PASS || 'admin123456';
     const n = process.env.ADMIN_NOME || 'Amministratore';
     const hash = await bcrypt.hash(p, 10);
     await pool.query(
