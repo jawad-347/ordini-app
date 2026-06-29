@@ -97,14 +97,17 @@ app.get('/test-smtp', async (req, res) => {
   const user = process.env.SMTP_USER || 'non impostato';
   const emailTo = process.env.EMAIL_TO || 'non impostato';
 
-  const tcpTest = () => new Promise((resolve) => {
-    const s = net.createConnection({ host, port, timeout: 8000 });
-    s.on('connect', () => { s.destroy(); resolve('OK connesso'); });
+  const tcpTest = (p) => new Promise((resolve) => {
+    const s = net.createConnection({ host, port: p, timeout: 8000 });
+    s.on('connect', () => { s.destroy(); resolve('OK'); });
     s.on('timeout', () => { s.destroy(); resolve('TIMEOUT'); });
     s.on('error', (e) => resolve('ERRORE: ' + e.message));
   });
 
-  const tcpResult = await tcpTest();
+  const [r25, r465, r587, r2525] = await Promise.all([
+    tcpTest(25), tcpTest(465), tcpTest(587), tcpTest(2525)
+  ]);
+  const tcpResult = { 25: r25, 465: r465, 587: r587, 2525: r2525 };
 
   let smtpResult = 'non testato';
   if (tcpResult === 'OK connesso') {
