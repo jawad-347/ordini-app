@@ -355,27 +355,30 @@ app.post('/api/send-email', requireAuth, async (req, res) => {
   ).join('\n');
   const text = `Ordine #${ordineId} - ${data}\nCliente: ${clienteNome} ${clienteCodice ? '('+clienteCodice+')' : ''}\n\nArticoli:\n${righeText}\n\nTotale: €${parseFloat(totale).toFixed(2)}\n${note ? '\nNote: '+note : ''}`;
 
-  try {
-    const nodemailer = require('nodemailer');
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT) || 587,
-      secure: false,
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-      tls: { rejectUnauthorized: false },
-    });
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: process.env.EMAIL_TO,
-      subject: `Ordine #${ordineId} - ${clienteNome}`,
-      html,
-      text,
-    });
-    res.json({ ok: true });
-  } catch (err) {
-    console.error('Email error:', err.message);
-    res.status(500).json({ ok: false, error: err.message });
-  }
+  // Risponde subito, invia email in background
+  res.json({ ok: true });
+
+  const nodemailer = require('nodemailer');
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT) || 587,
+    secure: false,
+    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    tls: { rejectUnauthorized: false },
+    connectionTimeout: 20000,
+    greetingTimeout: 10000,
+  });
+  transporter.sendMail({
+    from: process.env.EMAIL_FROM,
+    to: process.env.EMAIL_TO,
+    subject: `Ordine #${ordineId} - ${clienteNome}`,
+    html,
+    text,
+  }).then(() => {
+    console.log(`✅ Email ordine #${ordineId} inviata`);
+  }).catch(err => {
+    console.error(`❌ Email ordine #${ordineId} fallita:`, err.message);
+  });
 });
 
 const PORT = process.env.PORT || 3000;
