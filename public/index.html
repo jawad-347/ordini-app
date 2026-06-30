@@ -89,7 +89,6 @@
   .stato-select { border: none; background: transparent; font-size: 12px; cursor: pointer; padding: 3px 6px; border-radius: 6px; color: #555; }
   .stato-select:focus { outline: 1px solid #4f8ef7; }
 
-  /* Search items */
   .search-item {
     padding: 10px 14px; border-radius: 8px; cursor: pointer;
     border: 1px solid #e5e7eb; margin-bottom: 6px; transition: all .15s; background: #fff;
@@ -101,7 +100,6 @@
   .search-item .item-sub  { font-size: 12px; color: #888; margin-top: 2px; }
   .search-item .item-code { font-size: 12px; font-weight: 700; color: #4f8ef7; background: #eff6ff; padding: 2px 8px; border-radius: 6px; white-space: nowrap; }
 
-  /* Righe ordine */
   .riga-ordine {
     display: grid; grid-template-columns: auto 1fr 80px 90px 36px;
     gap: 8px; align-items: center; padding: 10px 12px;
@@ -118,7 +116,6 @@
   .btn-back:hover { background: #e2e8f0; }
   .no-results { text-align: center; color: #aaa; padding: 24px; font-size: 14px; }
 
-  /* Pagina ordine */
   .ordine-cliente-card {
     background: #fff; border-radius: 12px; padding: 18px 22px;
     box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 16px;
@@ -126,7 +123,6 @@
   }
   .ordine-cliente-card .cliente-code { font-size: 12px; font-weight: 700; color: #4f8ef7; background: #eff6ff; padding: 2px 9px; border-radius: 6px; }
 
-  /* Email success modal */
   .success-box { text-align: center; padding: 10px 0 20px; }
   .success-box .icon { font-size: 52px; margin-bottom: 12px; }
   .success-box h3 { font-size: 20px; margin-bottom: 6px; }
@@ -144,11 +140,9 @@
     width: 380px; max-width: 92vw;
     box-shadow: 0 8px 32px rgba(0,0,0,.12);
   }
-  #login-box .login-logo {
-    text-align: center; font-size: 36px; margin-bottom: 6px;
-  }
+  #login-box .login-logo { text-align: center; font-size: 36px; margin-bottom: 6px; }
   #login-box h2 { text-align: center; font-size: 22px; color: #1a1f2e; margin-bottom: 6px; }
-  #login-box .login-sub { text-align: center; color: #888; font-size: 13px; margin-bottom: 28px; }
+  #login-box .login-sub { text-align: center; color: #888; font-size: 13px; margin-bottom: 20px; }
   #login-error { color: #dc2626; font-size: 13px; text-align: center; margin-top: 10px; display: none; }
   #login-box .btn-login {
     width: 100%; background: #4f8ef7; color: #fff; font-size: 16px;
@@ -156,6 +150,20 @@
     margin-top: 20px; font-weight: 600; transition: background .2s;
   }
   #login-box .btn-login:hover { background: #3a7de8; }
+
+  /* ===== LANGUAGE BUTTONS ===== */
+  .btn-lang {
+    padding: 7px 16px; border: 2px solid #e5e7eb; border-radius: 8px;
+    background: #fff; color: #666; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all .2s; min-height: unset;
+  }
+  .btn-lang.active, .btn-lang:hover { border-color: #4f8ef7; background: #eff6ff; color: #4f8ef7; }
+  .lang-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+  .sidebar .btn-lang { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.15); color: rgba(255,255,255,.65); }
+  .sidebar .btn-lang.active { background: rgba(79,142,247,.3); border-color: #4f8ef7; color: #fff; }
+  .sidebar .btn-lang:hover { background: rgba(255,255,255,.15); color: #fff; }
+  .sidebar-lang-row { display: flex; gap: 6px; padding: 0 16px 8px; }
+  .sidebar-lang-row .btn-lang { flex: 1; padding: 5px; font-size: 12px; text-align: center; }
 
   /* ===== SIDEBAR UTENTE ===== */
   .sidebar-user {
@@ -191,64 +199,41 @@
     padding: 10px 13px; font-size: 20px; line-height: 1; cursor: pointer;
     box-shadow: 0 2px 8px rgba(0,0,0,.35); min-height: unset;
   }
-  .sidebar-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 149;
-  }
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 149; }
   .sidebar-overlay.open { display: block; }
   .sidebar { transition: transform .25s ease; z-index: 150; }
 
-  /* ===== RESPONSIVE — iPHONE / iPAD ===== */
+  /* ===== RESPONSIVE ===== */
   @media (max-width: 768px) {
     .hamburger { display: block; }
     .sidebar { transform: translateX(-100%); }
     .sidebar.open { transform: translateX(0); }
-
     .main { margin-left: 0; padding: 70px 14px 32px; min-height: 100svh; }
-
     h1 { font-size: 20px; margin-bottom: 16px; }
-
     .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
     .stat-card { padding: 14px; }
     .stat-card .value { font-size: 22px; }
-
     .card { padding: 14px; }
-
-    /* Toolbar: stack vertically, full width */
     .toolbar { flex-direction: column; align-items: stretch; }
     .toolbar > div { flex-direction: column !important; align-items: stretch !important; width: 100%; }
     .toolbar input, .toolbar button { width: 100%; }
     .search-input { width: 100% !important; }
-
-    /* Touch targets */
     button { min-height: 44px; }
     .btn-sm { min-height: 36px; font-size: 12px; }
     .nav-item { min-height: 50px; }
     .art-del { min-height: unset; }
     .hamburger, .stato-select { min-height: unset; }
-
-    /* Tables: horizontal scroll — min-width forces real scroll instead of squeezing */
+    .btn-lang { min-height: unset; }
     table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; min-width: 560px; }
     th, td { white-space: nowrap; }
-    /* Badge ridondante nella tabella ordini (c'è già il select) */
     #tbody-ordini .badge { display: none; }
-
-    /* Order row: tighter grid */
     .riga-ordine { grid-template-columns: auto 1fr 56px 68px 32px; gap: 5px; padding: 8px; }
-
-    /* Client card in new order: stack */
     .ordine-cliente-card { flex-direction: column; align-items: flex-start; }
     .ordine-cliente-card > button { width: 100%; }
-
-    /* Modals: more padding-friendly */
     .modal { padding: 20px 14px; }
-
-    /* Nuovoordine header row */
     #page-ordine-nuovo > div:first-child { flex-wrap: wrap; }
-
-    /* Safe area on iPhone (notch/home bar) */
     body { padding-bottom: env(safe-area-inset-bottom); }
   }
-
   @media (max-width: 400px) {
     .stats-grid { grid-template-columns: 1fr; }
     .riga-ordine { grid-template-columns: auto 1fr 48px 60px 28px; gap: 3px; }
@@ -262,16 +247,20 @@
 <div id="login-screen">
   <div id="login-box">
     <div class="login-logo">📦</div>
-    <h2>Gestione Ordini</h2>
-    <p class="login-sub">Inserisci le tue credenziali per accedere</p>
-    <label>Username</label>
+    <h2 data-i18n="appTitle">Gestione Ordini</h2>
+    <div class="lang-row">
+      <button id="btn-lang-it" class="btn-lang active" onclick="setLang('it')">🇮🇹 Italiano</button>
+      <button id="btn-lang-en" class="btn-lang" onclick="setLang('en')">🇬🇧 English</button>
+    </div>
+    <p class="login-sub" data-i18n="loginSub">Inserisci le tue credenziali per accedere</p>
+    <label data-i18n="loginUsername">Username</label>
     <input id="login-username" type="text" placeholder="username" autocomplete="username"
       onkeydown="if(event.key==='Enter') document.getElementById('login-password').focus()">
-    <label>Password</label>
+    <label data-i18n="loginPassword">Password</label>
     <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password"
       onkeydown="if(event.key==='Enter') doLogin()">
     <div id="login-error"></div>
-    <button class="btn-login" onclick="doLogin()">Entra →</button>
+    <button class="btn-login" onclick="doLogin()" data-i18n="loginBtn">Entra →</button>
   </div>
 </div>
 
@@ -281,17 +270,19 @@
 <div class="sidebar" id="sidebar">
   <div class="sidebar-logo"><span>📦</span> Ordini</div>
   <nav>
-    <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">🏠</span> Dashboard</div>
-    <div class="nav-item" onclick="showPage('ordini')"><span class="icon">📋</span> Ordini <span id="coda-badge" style="display:none;background:#f97316;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:auto;"></span></div>
-    <div class="nav-item" onclick="showPage('clienti')"><span class="icon">👥</span> Clienti</div>
-    <div class="nav-item" onclick="showPage('prodotti')"><span class="icon">🛍️</span> Prodotti</div>
-    <div class="nav-item" id="nav-utenti" style="display:none;" onclick="showPage('utenti')"><span class="icon">🔑</span> Utenti</div>
+    <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">🏠</span> <span data-i18n="navDashboard">Dashboard</span></div>
+    <div class="nav-item" onclick="showPage('ordini')"><span class="icon">📋</span> <span data-i18n="navOrdini">Ordini</span> <span id="coda-badge" style="display:none;background:#f97316;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:auto;"></span></div>
+    <div class="nav-item" onclick="showPage('clienti')"><span class="icon">👥</span> <span data-i18n="navClienti">Clienti</span></div>
+    <div class="nav-item" onclick="showPage('prodotti')"><span class="icon">🛍️</span> <span data-i18n="navProdotti">Prodotti</span></div>
+    <div class="nav-item" id="nav-utenti" style="display:none;" onclick="showPage('utenti')"><span class="icon">🔑</span> <span data-i18n="navUtenti">Utenti</span></div>
   </nav>
   <div style="padding:12px 16px 8px;">
     <div id="server-stato" style="font-size:11px;text-align:center;padding:6px;border-radius:6px;background:rgba(255,255,255,.05);color:#aaa;margin-bottom:8px;"></div>
-    <button id="btn-invia-coda" onclick="svuotaCodaEmail()" style="display:none;width:100%;background:#f97316;color:#fff;border:none;border-radius:8px;padding:9px;font-size:13px;cursor:pointer;font-weight:600;">
-      📤 Invia coda email
-    </button>
+    <button id="btn-invia-coda" onclick="svuotaCodaEmail()" style="display:none;width:100%;background:#f97316;color:#fff;border:none;border-radius:8px;padding:9px;font-size:13px;cursor:pointer;font-weight:600;" data-i18n="inviaCodaEmail">📤 Invia coda email</button>
+  </div>
+  <div class="sidebar-lang-row">
+    <button id="sidebar-lang-it" class="btn-lang active" onclick="setLang('it')">🇮🇹 IT</button>
+    <button id="sidebar-lang-en" class="btn-lang" onclick="setLang('en')">🇬🇧 EN</button>
   </div>
   <div class="sidebar-user">
     <div class="user-avatar" id="sidebar-avatar">?</div>
@@ -307,33 +298,41 @@
 
   <!-- DASHBOARD -->
   <div id="page-dashboard" class="page active">
-    <h1>Dashboard</h1>
+    <h1 data-i18n="dashTitle">Dashboard</h1>
     <div class="stats-grid">
-      <div class="stat-card"><div class="label">Totale Ordini</div><div class="value blue" id="stat-ordini">0</div></div>
-      <div class="stat-card"><div class="label">In Attesa</div><div class="value orange" id="stat-attesa">0</div></div>
-      <div class="stat-card"><div class="label">Clienti</div><div class="value" id="stat-clienti">0</div></div>
-      <div class="stat-card"><div class="label">Prodotti</div><div class="value" id="stat-prodotti">0</div></div>
-      <div class="stat-card"><div class="label">Fatturato</div><div class="value green" id="stat-fatturato">€0.00</div></div>
+      <div class="stat-card"><div class="label" data-i18n="statOrdini">Totale Ordini</div><div class="value blue" id="stat-ordini">0</div></div>
+      <div class="stat-card"><div class="label" data-i18n="statAttesa">In Attesa</div><div class="value orange" id="stat-attesa">0</div></div>
+      <div class="stat-card"><div class="label" data-i18n="statClienti">Clienti</div><div class="value" id="stat-clienti">0</div></div>
+      <div class="stat-card"><div class="label" data-i18n="statProdotti">Prodotti</div><div class="value" id="stat-prodotti">0</div></div>
+      <div class="stat-card"><div class="label" data-i18n="statFatturato">Fatturato</div><div class="value green" id="stat-fatturato">€0,00</div></div>
     </div>
     <div class="card">
-      <h2 style="margin-bottom:16px; font-size:16px; color:#555;">Ultimi Ordini</h2>
+      <h2 style="margin-bottom:16px; font-size:16px; color:#555;" data-i18n="ultimiOrdini">Ultimi Ordini</h2>
       <div id="ultimi-ordini"></div>
     </div>
   </div>
 
   <!-- ORDINI -->
   <div id="page-ordini" class="page">
-    <h1>Ordini</h1>
+    <h1 data-i18n="ordiniTitle">Ordini</h1>
     <div class="card">
       <div class="toolbar">
-        <h2>Lista Ordini</h2>
+        <h2 data-i18n="listaOrdini">Lista Ordini</h2>
         <div style="display:flex;gap:10px;align-items:center;">
-          <input class="search-input" placeholder="Cerca..." oninput="filterOrdini(this.value)" id="search-ordini">
-          <button class="btn-primary" onclick="openNuovoOrdine()">+ Nuovo Ordine</button>
+          <input class="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="Cerca..." oninput="filterOrdini(this.value)" id="search-ordini">
+          <button class="btn-primary" onclick="openNuovoOrdine()" data-i18n="nuovoOrdine">+ Nuovo Ordine</button>
         </div>
       </div>
       <table>
-        <thead><tr><th>#</th><th>Cliente</th><th>Agente</th><th>Stato</th><th>Totale</th><th>Data</th><th>Azioni</th></tr></thead>
+        <thead><tr>
+          <th data-i18n="colNum">#</th>
+          <th data-i18n="colCliente">Cliente</th>
+          <th data-i18n="colAgente">Agente</th>
+          <th data-i18n="colStato">Stato</th>
+          <th data-i18n="colTotale">Totale</th>
+          <th data-i18n="colData">Data</th>
+          <th data-i18n="colAzioni">Azioni</th>
+        </tr></thead>
         <tbody id="tbody-ordini"></tbody>
       </table>
     </div>
@@ -341,91 +340,100 @@
 
   <!-- CLIENTI -->
   <div id="page-clienti" class="page">
-    <h1>Clienti</h1>
+    <h1 data-i18n="clientiTitle">Clienti</h1>
     <div class="card">
       <div class="toolbar">
-        <h2>Lista Clienti</h2>
-        <button class="btn-primary" onclick="openNuovoCliente()">+ Nuovo Cliente</button>
-        <button id="btn-import-clienti" class="btn-primary" onclick="document.getElementById('import-excel').click()" style="background:#16a34a;display:none;">📥 Importa Excel</button>
+        <h2 data-i18n="listaClienti">Lista Clienti</h2>
+        <button class="btn-primary" onclick="openNuovoCliente()" data-i18n="nuovoCliente">+ Nuovo Cliente</button>
+        <button id="btn-import-clienti" class="btn-primary" onclick="document.getElementById('import-excel').click()" style="background:#16a34a;display:none;" data-i18n="importExcel">📥 Importa Excel</button>
         <input type="file" id="import-excel" accept=".xlsx,.xls" style="display:none" onchange="importaClientiExcel(this)">
       </div>
       <table>
-        <thead><tr><th>Nome</th><th>Email</th><th>Telefono</th><th>Indirizzo</th><th>Azioni</th></tr></thead>
+        <thead><tr>
+          <th data-i18n="colNome">Nome</th>
+          <th data-i18n="colEmail">Email</th>
+          <th data-i18n="colTelefono">Telefono</th>
+          <th data-i18n="colIndirizzo">Indirizzo</th>
+          <th data-i18n="colAzioni">Azioni</th>
+        </tr></thead>
         <tbody id="tbody-clienti"></tbody>
       </table>
     </div>
   </div>
 
-  <!-- PAGINA NUOVO ORDINE -->
+  <!-- NUOVO ORDINE -->
   <div id="page-ordine-nuovo" class="page">
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;">
-      <button class="btn-back" style="font-size:14px;padding:9px 16px;" onclick="annullaOrdineNuovo()">← Ordini</button>
-      <h1 style="margin:0;">Nuovo Ordine</h1>
+      <button class="btn-back" style="font-size:14px;padding:9px 16px;" onclick="annullaOrdineNuovo()" data-i18n="btnTornaOrdini">← Ordini</button>
+      <h1 style="margin:0;" data-i18n="nuovoOrdineTitle">Nuovo Ordine</h1>
     </div>
-
     <div class="ordine-cliente-card">
       <div>
-        <div style="font-size:12px;color:#888;margin-bottom:3px;">Cliente</div>
+        <div style="font-size:12px;color:#888;margin-bottom:3px;" data-i18n="labelCliente">Cliente</div>
         <div style="display:flex;align-items:center;gap:8px;">
           <span class="cliente-code" id="np-cliente-code"></span>
           <span id="np-cliente-nome" style="font-size:19px;font-weight:700;color:#1a1f2e;"></span>
         </div>
         <div id="np-cliente-info" style="font-size:12px;color:#888;margin-top:3px;"></div>
       </div>
-      <button class="btn-back" onclick="cambiaClienteOrdine()">Cambia cliente</button>
+      <button class="btn-back" onclick="cambiaClienteOrdine()" data-i18n="cambiaCliente">Cambia cliente</button>
     </div>
-
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <h2>Articoli in ordine</h2>
-        <button class="btn-primary" style="font-size:14px;padding:10px 20px;" onclick="openCercaArticolo()">＋ Aggiungi Articolo</button>
+        <h2 data-i18n="articoliInOrdine">Articoli in ordine</h2>
+        <button class="btn-primary" style="font-size:14px;padding:10px 20px;" onclick="openCercaArticolo()" data-i18n="aggiungiArticoloBt">＋ Aggiungi Articolo</button>
       </div>
       <div id="np-righe"></div>
       <div id="np-totale" style="text-align:right;font-size:22px;font-weight:700;color:#4f8ef7;margin-top:14px;padding-top:12px;border-top:2px solid #f1f5f9;"></div>
     </div>
-
     <div class="card">
-      <label>Note ordine</label>
-      <textarea id="np-note" placeholder="Note, istruzioni di consegna..."></textarea>
+      <label data-i18n="noteOrdine">Note ordine</label>
+      <textarea id="np-note" data-i18n-placeholder="notePlaceholder" placeholder="Note, istruzioni di consegna..."></textarea>
       <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
-        <button onclick="annullaOrdineNuovo()">Annulla</button>
-        <button class="btn-primary" style="font-size:16px;padding:12px 32px;" onclick="salvaOrdine()">✓ Crea Ordine</button>
+        <button onclick="annullaOrdineNuovo()" data-i18n="annulla">Annulla</button>
+        <button class="btn-primary" style="font-size:16px;padding:12px 32px;" onclick="salvaOrdine()" data-i18n="creaOrdine">✓ Crea Ordine</button>
       </div>
     </div>
   </div>
 
   <!-- UTENTI -->
   <div id="page-utenti" class="page">
-    <h1>Utenti</h1>
+    <h1 data-i18n="utentiTitle">Utenti</h1>
     <div class="card">
       <div class="toolbar">
-        <h2>Gestione Utenti</h2>
-        <button class="btn-primary" onclick="openNuovoUtente()">+ Nuovo Utente</button>
+        <h2 data-i18n="gestioneUtenti">Gestione Utenti</h2>
+        <button class="btn-primary" onclick="openNuovoUtente()" data-i18n="nuovoUtente">+ Nuovo Utente</button>
       </div>
       <div id="lista-utenti"></div>
     </div>
     <div class="card" style="margin-top:20px;">
-      <h2 style="font-size:16px;margin-bottom:16px;">Cambia la tua password</h2>
-      <label>Password attuale</label><input id="cp-old" type="password" placeholder="Password attuale">
-      <label>Nuova password</label><input id="cp-new" type="password" placeholder="Nuova password (min 4 caratteri)">
+      <h2 style="font-size:16px;margin-bottom:16px;" data-i18n="cambiaPasswordTitle">Cambia la tua password</h2>
+      <label data-i18n="labelPwAttuale">Password attuale</label><input id="cp-old" type="password" data-i18n-placeholder="labelPwAttuale" placeholder="Password attuale">
+      <label data-i18n="labelPwNuova">Nuova password</label><input id="cp-new" type="password" data-i18n-placeholder="pwNuovaPlaceholder" placeholder="Nuova password (min 4 caratteri)">
       <div style="display:flex;justify-content:flex-end;margin-top:16px;">
-        <button class="btn-primary" onclick="cambiaPassword()">Cambia Password</button>
+        <button class="btn-primary" onclick="cambiaPassword()" data-i18n="btnCambiaPassword">Cambia Password</button>
       </div>
     </div>
   </div>
 
   <!-- PRODOTTI -->
   <div id="page-prodotti" class="page">
-    <h1>Prodotti</h1>
+    <h1 data-i18n="prodottiTitle">Prodotti</h1>
     <div class="card">
       <div class="toolbar">
-        <h2>Catalogo Prodotti</h2>
-        <button class="btn-primary" onclick="openNuovoProdotto()">+ Nuovo Prodotto</button>
-        <button id="btn-import-prodotti" class="btn-primary" onclick="document.getElementById('import-excel-prodotti').click()" style="background:#16a34a;display:none;">📥 Importa Excel</button>
+        <h2 data-i18n="catalogoProdotti">Catalogo Prodotti</h2>
+        <button class="btn-primary" onclick="openNuovoProdotto()" data-i18n="nuovoProdotto">+ Nuovo Prodotto</button>
+        <button id="btn-import-prodotti" class="btn-primary" onclick="document.getElementById('import-excel-prodotti').click()" style="background:#16a34a;display:none;" data-i18n="importExcel">📥 Importa Excel</button>
         <input type="file" id="import-excel-prodotti" accept=".xlsx,.xls" style="display:none" onchange="importaProdottiExcel(this)">
       </div>
       <table>
-        <thead><tr><th>Nome</th><th>Descrizione</th><th>Prezzo</th><th>Stock</th><th>Azioni</th></tr></thead>
+        <thead><tr>
+          <th data-i18n="colNome">Nome</th>
+          <th data-i18n="colDescrizione">Descrizione</th>
+          <th data-i18n="colPrezzo">Prezzo</th>
+          <th data-i18n="colStock">Stock</th>
+          <th data-i18n="colAzioni">Azioni</th>
+        </tr></thead>
         <tbody id="tbody-prodotti"></tbody>
       </table>
     </div>
@@ -437,13 +445,13 @@
   <div class="modal">
     <h3 id="modal-cliente-title">Nuovo Cliente</h3>
     <input type="hidden" id="cliente-id">
-    <label>Nome *</label><input id="cliente-nome" placeholder="Mario Rossi">
-    <label>Email</label><input id="cliente-email" type="email" placeholder="mario@email.it">
-    <label>Telefono</label><input id="cliente-tel" placeholder="+39 333 000000">
-    <label>Indirizzo</label><input id="cliente-indirizzo" placeholder="Via Roma 1, Milano">
+    <label data-i18n="labelNome">Nome *</label><input id="cliente-nome" placeholder="Mario Rossi">
+    <label data-i18n="labelEmail">Email</label><input id="cliente-email" type="email" placeholder="mario@email.it">
+    <label data-i18n="labelTel">Telefono</label><input id="cliente-tel" placeholder="+39 333 000000">
+    <label data-i18n="labelIndirizzo">Indirizzo</label><input id="cliente-indirizzo" placeholder="Via Roma 1, Milano">
     <div class="modal-actions">
-      <button onclick="closeModal('modal-cliente')">Annulla</button>
-      <button class="btn-primary" onclick="salvaCliente()">Salva</button>
+      <button onclick="closeModal('modal-cliente')" data-i18n="btnAnnulla">Annulla</button>
+      <button class="btn-primary" onclick="salvaCliente()" data-i18n="btnSalva">Salva</button>
     </div>
   </div>
 </div>
@@ -453,13 +461,13 @@
   <div class="modal">
     <h3 id="modal-prodotto-title">Nuovo Prodotto</h3>
     <input type="hidden" id="prodotto-id">
-    <label>Nome *</label><input id="prodotto-nome" placeholder="Es. Camicia">
-    <label>Descrizione</label><textarea id="prodotto-desc" placeholder="Descrizione prodotto..."></textarea>
-    <label>Prezzo (€) *</label><input id="prodotto-prezzo" type="number" step="0.01" placeholder="9.99">
-    <label>Stock</label><input id="prodotto-stock" type="number" placeholder="100">
+    <label data-i18n="labelNome">Nome *</label><input id="prodotto-nome" placeholder="Es. Camicia">
+    <label data-i18n="labelProdDesc">Descrizione</label><textarea id="prodotto-desc" placeholder="Descrizione prodotto..."></textarea>
+    <label data-i18n="labelProdPrezzo">Prezzo (€) *</label><input id="prodotto-prezzo" type="number" step="0.01" placeholder="9.99">
+    <label data-i18n="labelProdStock">Stock</label><input id="prodotto-stock" type="number" placeholder="100">
     <div class="modal-actions">
-      <button onclick="closeModal('modal-prodotto')">Annulla</button>
-      <button class="btn-primary" onclick="salvaProdotto()">Salva</button>
+      <button onclick="closeModal('modal-prodotto')" data-i18n="btnAnnulla">Annulla</button>
+      <button class="btn-primary" onclick="salvaProdotto()" data-i18n="btnSalva">Salva</button>
     </div>
   </div>
 </div>
@@ -468,10 +476,10 @@
 <div id="modal-ordine" class="modal-overlay">
   <div class="modal" style="width:600px;">
     <div class="step-header">
-      <h3>Nuovo Ordine — Scegli Cliente</h3>
+      <h3 data-i18n="scegliCliente">Nuovo Ordine — Scegli Cliente</h3>
       <button onclick="closeModal('modal-ordine')" style="background:none;border:none;font-size:22px;color:#aaa;cursor:pointer;">✕</button>
     </div>
-    <input id="cerca-cliente-input" placeholder="🔍  Cerca per nome o codice cliente..." oninput="filtraClientiOrdine(this.value)" autocomplete="off" style="font-size:15px;padding:11px 14px;">
+    <input id="cerca-cliente-input" data-i18n-placeholder="cercaClienteInput" placeholder="🔍  Cerca per nome o codice cliente..." oninput="filtraClientiOrdine(this.value)" autocomplete="off" style="font-size:15px;padding:11px 14px;">
     <div id="lista-clienti-ordine" style="margin-top:10px;max-height:420px;overflow-y:auto;"></div>
   </div>
 </div>
@@ -480,15 +488,13 @@
 <div id="modal-cerca-art" class="modal-overlay">
   <div class="modal" style="width:620px;">
     <div class="step-header">
-      <h3>Aggiungi Articolo</h3>
+      <h3 data-i18n="aggiungiArticoloTitle">Aggiungi Articolo</h3>
       <button onclick="closeModal('modal-cerca-art')" style="background:none;border:none;font-size:22px;color:#aaa;cursor:pointer;">✕</button>
     </div>
-
     <div id="art-search-view">
-      <input id="cerca-art-input" placeholder="🔍  Codice, nome, brand, grammi..." oninput="filtraArticoli(this.value)" autocomplete="off" style="font-size:15px;padding:11px 14px;">
+      <input id="cerca-art-input" data-i18n-placeholder="cercaArticoloInput" placeholder="🔍  Codice, nome, brand, grammi..." oninput="filtraArticoli(this.value)" autocomplete="off" style="font-size:15px;padding:11px 14px;">
       <div id="lista-articoli" style="margin-top:10px;max-height:380px;overflow-y:auto;"></div>
     </div>
-
     <div id="art-qty-form" style="display:none;margin-top:4px;">
       <div style="padding:14px;background:#f8fafc;border-radius:10px;border:1px solid #e5e7eb;margin-bottom:16px;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
@@ -499,17 +505,17 @@
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
         <div>
-          <label>Cartoni *</label>
+          <label data-i18n="labelCartoni">Cartoni *</label>
           <input id="art-qty" type="number" min="1" value="1" style="font-size:22px;font-weight:700;text-align:center;padding:12px;">
         </div>
         <div>
-          <label>Prezzo € *</label>
+          <label data-i18n="labelPrezzo">Prezzo € *</label>
           <input id="art-prezzo" type="number" step="0.01" min="0" placeholder="0.00" style="font-size:22px;font-weight:700;text-align:center;padding:12px;">
         </div>
       </div>
       <div class="modal-actions" style="margin-top:16px;">
-        <button onclick="annullaArtQty()">← Cerca ancora</button>
-        <button class="btn-primary" style="font-size:15px;padding:10px 24px;" onclick="confermaArticolo()">Aggiungi ✓</button>
+        <button onclick="annullaArtQty()" data-i18n="cercaAncora">← Cerca ancora</button>
+        <button class="btn-primary" style="font-size:15px;padding:10px 24px;" onclick="confermaArticolo()" data-i18n="aggiungiBtn">Aggiungi ✓</button>
       </div>
     </div>
   </div>
@@ -520,10 +526,10 @@
   <div class="modal" style="width:420px;">
     <div class="success-box">
       <div class="icon">✅</div>
-      <h3>Ordine Creato!</h3>
+      <h3 data-i18n="ordineCreatoTitle">Ordine Creato!</h3>
       <p id="ordine-ok-info"></p>
       <p id="ordine-ok-email-stato" style="font-size:14px;color:#555;margin-top:-10px;margin-bottom:20px;"></p>
-      <button onclick="closeModal('modal-ordine-ok')" style="background:#f1f5f9;color:#555;padding:11px 24px;border-radius:10px;">Chiudi</button>
+      <button onclick="closeModal('modal-ordine-ok')" style="background:#f1f5f9;color:#555;padding:11px 24px;border-radius:10px;" data-i18n="btnChiudi">Chiudi</button>
     </div>
   </div>
 </div>
@@ -531,17 +537,17 @@
 <!-- MODAL NUOVO UTENTE -->
 <div id="modal-utente" class="modal-overlay">
   <div class="modal">
-    <h3>Nuovo Utente</h3>
-    <label>Nome completo *</label><input id="utente-nome" placeholder="Mario Rossi">
-    <label>Username *</label><input id="utente-username" placeholder="mario.rossi">
-    <label>Password *</label><input id="utente-password" type="password" placeholder="Minimo 4 caratteri">
+    <h3 data-i18n="nuovoUtenteTitle">Nuovo Utente</h3>
+    <label data-i18n="labelNomeCompleto">Nome completo *</label><input id="utente-nome" placeholder="Mario Rossi">
+    <label data-i18n="labelUsernameField">Username *</label><input id="utente-username" placeholder="mario.rossi">
+    <label data-i18n="labelPasswordUtente">Password *</label><input id="utente-password" type="password" placeholder="Minimo 4 caratteri">
     <label style="display:flex;align-items:center;gap:8px;margin-top:14px;flex-direction:row;">
       <input type="checkbox" id="utente-admin" style="width:auto;margin:0;">
-      <span>Amministratore</span>
+      <span data-i18n="labelAmministratore">Amministratore</span>
     </label>
     <div class="modal-actions">
-      <button onclick="closeModal('modal-utente')">Annulla</button>
-      <button class="btn-primary" onclick="salvaUtente()">Crea Utente</button>
+      <button onclick="closeModal('modal-utente')" data-i18n="btnAnnulla">Annulla</button>
+      <button class="btn-primary" onclick="salvaUtente()" data-i18n="btnCreaUtente">Crea Utente</button>
     </div>
   </div>
 </div>
@@ -549,15 +555,389 @@
 <!-- MODAL DETTAGLIO ORDINE -->
 <div id="modal-dettaglio" class="modal-overlay">
   <div class="modal" style="width:580px;">
-    <h3>Dettaglio Ordine <span id="dettaglio-id"></span></h3>
+    <h3><span data-i18n="dettaglioOrdine">Dettaglio Ordine</span> <span id="dettaglio-id"></span></h3>
     <div id="dettaglio-body"></div>
     <div class="modal-actions">
-      <button onclick="closeModal('modal-dettaglio')">Chiudi</button>
+      <button onclick="closeModal('modal-dettaglio')" data-i18n="btnChiudi">Chiudi</button>
     </div>
   </div>
 </div>
 
 <script>
+// ---- TRADUZIONI ----
+const T = {
+  it: {
+    appTitle: 'Gestione Ordini',
+    loginSub: 'Inserisci le tue credenziali per accedere',
+    loginUsername: 'Username',
+    loginPassword: 'Password',
+    loginBtn: 'Entra →',
+    loginErrFields: 'Inserisci username e password',
+    loginErrWrong: 'Credenziali errate',
+    loginErrConn: 'Errore di connessione',
+    navDashboard: 'Dashboard',
+    navOrdini: 'Ordini',
+    navClienti: 'Clienti',
+    navProdotti: 'Prodotti',
+    navUtenti: 'Utenti',
+    roleAdmin: 'Amministratore',
+    roleAgent: 'Agente',
+    dashTitle: 'Dashboard',
+    statOrdini: 'Totale Ordini',
+    statAttesa: 'In Attesa',
+    statClienti: 'Clienti',
+    statProdotti: 'Prodotti',
+    statFatturato: 'Fatturato',
+    ultimiOrdini: 'Ultimi Ordini',
+    noOrdini: 'Nessun ordine ancora',
+    ordiniTitle: 'Ordini',
+    listaOrdini: 'Lista Ordini',
+    searchPlaceholder: 'Cerca...',
+    nuovoOrdine: '+ Nuovo Ordine',
+    colNum: '#',
+    colCliente: 'Cliente',
+    colAgente: 'Agente',
+    colStato: 'Stato',
+    colTotale: 'Totale',
+    colData: 'Data',
+    colAzioni: 'Azioni',
+    nessunOrdine: 'Nessun ordine',
+    btnVedi: 'Vedi',
+    btnElimina: 'Elimina',
+    btnModifica: 'Modifica',
+    stato_in_attesa: 'In Attesa',
+    stato_completato: 'Completato',
+    stato_annullato: 'Annullato',
+    clientiTitle: 'Clienti',
+    listaClienti: 'Lista Clienti',
+    nuovoCliente: '+ Nuovo Cliente',
+    importExcel: '📥 Importa Excel',
+    nessunCliente: 'Nessun cliente',
+    colNome: 'Nome',
+    colEmail: 'Email',
+    colTelefono: 'Telefono',
+    colIndirizzo: 'Indirizzo',
+    prodottiTitle: 'Prodotti',
+    catalogoProdotti: 'Catalogo Prodotti',
+    nuovoProdotto: '+ Nuovo Prodotto',
+    nessunProdotto: 'Nessun prodotto',
+    colDescrizione: 'Descrizione',
+    colPrezzo: 'Prezzo',
+    colStock: 'Stock',
+    nuovoOrdineTitle: 'Nuovo Ordine',
+    btnTornaOrdini: '← Ordini',
+    labelCliente: 'Cliente',
+    articoliInOrdine: 'Articoli in ordine',
+    aggiungiArticoloBt: '＋ Aggiungi Articolo',
+    nessunArticolo: 'Nessun articolo aggiunto ancora',
+    noteOrdine: 'Note ordine',
+    notePlaceholder: 'Note, istruzioni di consegna...',
+    annulla: 'Annulla',
+    creaOrdine: '✓ Crea Ordine',
+    cambiaCliente: 'Cambia cliente',
+    nuovoClienteTitle: 'Nuovo Cliente',
+    modificaClienteTitle: 'Modifica Cliente',
+    labelNome: 'Nome *',
+    labelEmail: 'Email',
+    labelTel: 'Telefono',
+    labelIndirizzo: 'Indirizzo',
+    btnSalva: 'Salva',
+    btnAnnulla: 'Annulla',
+    nuovoProdottoTitle: 'Nuovo Prodotto',
+    modificaProdottoTitle: 'Modifica Prodotto',
+    labelProdDesc: 'Descrizione',
+    labelProdPrezzo: 'Prezzo (€) *',
+    labelProdStock: 'Stock',
+    scegliCliente: 'Nuovo Ordine — Scegli Cliente',
+    cercaClienteInput: '🔍  Cerca per nome o codice cliente...',
+    nessunClienteTrovato: 'Nessun cliente trovato',
+    aggiungiArticoloTitle: 'Aggiungi Articolo',
+    cercaArticoloInput: '🔍  Codice, nome, brand, grammi...',
+    nessunArticoloTrovato: 'Nessun articolo trovato',
+    labelCartoni: 'Cartoni *',
+    labelPrezzo: 'Prezzo € *',
+    cercaAncora: '← Cerca ancora',
+    aggiungiBtn: 'Aggiungi ✓',
+    ordineCreatoTitle: 'Ordine Creato!',
+    emailInCorso: '📧 Invio email in corso...',
+    emailInviata: '✅ Email inviata!',
+    emailSalvataInCoda: 'Email salvata in coda',
+    btnChiudi: 'Chiudi',
+    utentiTitle: 'Utenti',
+    gestioneUtenti: 'Gestione Utenti',
+    nuovoUtente: '+ Nuovo Utente',
+    cambiaPasswordTitle: 'Cambia la tua password',
+    labelPwAttuale: 'Password attuale',
+    labelPwNuova: 'Nuova password',
+    pwNuovaPlaceholder: 'Nuova password (min 4 caratteri)',
+    btnCambiaPassword: 'Cambia Password',
+    nuovoUtenteTitle: 'Nuovo Utente',
+    labelNomeCompleto: 'Nome completo *',
+    labelUsernameField: 'Username *',
+    labelPasswordUtente: 'Password *',
+    labelAmministratore: 'Amministratore',
+    btnCreaUtente: 'Crea Utente',
+    dettaglioOrdine: 'Dettaglio Ordine',
+    labelClienteDet: 'Cliente:',
+    labelStatoDet: 'Stato:',
+    labelDataDet: 'Data:',
+    labelAgenteDet: 'Agente:',
+    labelNoteDet: 'Note:',
+    colProdotto: 'Prodotto',
+    colQuantita: 'Quantità',
+    colPrezzoUnit: 'Prezzo unit.',
+    colSubtotale: 'Subtotale',
+    prodottoRimosso: 'Prodotto rimosso',
+    totaleLbl: 'Totale:',
+    serverAttivo: '🟢 Server attivo',
+    serverNonAttivo: '🔴 Server non attivo',
+    inviaCodaEmail: '📤 Invia coda email',
+    confElimOrdine: 'Eliminare ordine #',
+    confElimCliente: 'Eliminare questo cliente?',
+    confElimProdotto: 'Eliminare questo prodotto?',
+    confElimUtente: 'Eliminare questo utente?',
+    errAggStato: 'Errore aggiornamento stato',
+    errElimOrdine: 'Errore eliminazione ordine',
+    errElimCliente: 'Errore eliminazione cliente',
+    errElimProdotto: 'Errore eliminazione prodotto',
+    errElimUtente: 'Errore eliminazione utente',
+    errSalvCliente: 'Errore salvataggio cliente',
+    errSalvProdotto: 'Errore salvataggio prodotto',
+    errNomeObb: 'Il nome è obbligatorio',
+    errNomePrezzo: 'Nome e prezzo sono obbligatori',
+    errCampi: 'Compila tutti i campi obbligatori',
+    errPw: 'Compila entrambi i campi',
+    pwCambiata: 'Password cambiata con successo!',
+    errCaricamentoDati: 'Errore caricamento dati',
+    aggiungiClienteAlert: 'Aggiungi almeno un cliente prima.',
+    aggiungiProdottoAlert: 'Aggiungi almeno un prodotto prima.',
+    errSalvOrdine: 'Errore salvataggio ordine',
+    selezionaCliente: 'Seleziona un cliente',
+    aggiungiArticoloAlert: 'Aggiungi almeno un articolo',
+    errCartoni: 'Inserisci un numero di cartoni valido',
+    errPrezzo: 'Inserisci un prezzo valido',
+    nessunDato: 'Nessun dato trovato nel file.',
+    nessunUtente: 'Nessun utente',
+    tu: '(tu)',
+    crt: 'crt.',
+    ordineInfoTpl: (id, nome, tot) => `Ordine #${id} per ${nome} — Totale €${tot}`,
+    importClientiAlert: (n, s) => `Importazione completata!\n✅ ${n} clienti aggiunti\n⏭️ ${s} righe saltate (senza nome)`,
+    importProdottiAlert: (n, s) => `Importazione completata!\n✅ ${n} prodotti aggiunti\n⏭️ ${s} righe saltate`,
+    emailCodaAlert: (n) => `✅ ${n} email in coda inviate!`,
+    errImport: (msg) => `Errore importazione: ${msg}`,
+    errSMTP: (e) => `⚠️ Errore SMTP: ${e}`,
+    errEmailMsg: (e) => `❌ Errore: ${e}`,
+  },
+  en: {
+    appTitle: 'Order Management',
+    loginSub: 'Enter your credentials to access',
+    loginUsername: 'Username',
+    loginPassword: 'Password',
+    loginBtn: 'Login →',
+    loginErrFields: 'Enter username and password',
+    loginErrWrong: 'Invalid credentials',
+    loginErrConn: 'Connection error',
+    navDashboard: 'Dashboard',
+    navOrdini: 'Orders',
+    navClienti: 'Customers',
+    navProdotti: 'Products',
+    navUtenti: 'Users',
+    roleAdmin: 'Administrator',
+    roleAgent: 'Agent',
+    dashTitle: 'Dashboard',
+    statOrdini: 'Total Orders',
+    statAttesa: 'Pending',
+    statClienti: 'Customers',
+    statProdotti: 'Products',
+    statFatturato: 'Revenue',
+    ultimiOrdini: 'Recent Orders',
+    noOrdini: 'No orders yet',
+    ordiniTitle: 'Orders',
+    listaOrdini: 'Order List',
+    searchPlaceholder: 'Search...',
+    nuovoOrdine: '+ New Order',
+    colNum: '#',
+    colCliente: 'Customer',
+    colAgente: 'Agent',
+    colStato: 'Status',
+    colTotale: 'Total',
+    colData: 'Date',
+    colAzioni: 'Actions',
+    nessunOrdine: 'No orders',
+    btnVedi: 'View',
+    btnElimina: 'Delete',
+    btnModifica: 'Edit',
+    stato_in_attesa: 'Pending',
+    stato_completato: 'Completed',
+    stato_annullato: 'Cancelled',
+    clientiTitle: 'Customers',
+    listaClienti: 'Customer List',
+    nuovoCliente: '+ New Customer',
+    importExcel: '📥 Import Excel',
+    nessunCliente: 'No customers',
+    colNome: 'Name',
+    colEmail: 'Email',
+    colTelefono: 'Phone',
+    colIndirizzo: 'Address',
+    prodottiTitle: 'Products',
+    catalogoProdotti: 'Product Catalog',
+    nuovoProdotto: '+ New Product',
+    nessunProdotto: 'No products',
+    colDescrizione: 'Description',
+    colPrezzo: 'Price',
+    colStock: 'Stock',
+    nuovoOrdineTitle: 'New Order',
+    btnTornaOrdini: '← Orders',
+    labelCliente: 'Customer',
+    articoliInOrdine: 'Order Items',
+    aggiungiArticoloBt: '＋ Add Item',
+    nessunArticolo: 'No items added yet',
+    noteOrdine: 'Order notes',
+    notePlaceholder: 'Notes, delivery instructions...',
+    annulla: 'Cancel',
+    creaOrdine: '✓ Create Order',
+    cambiaCliente: 'Change customer',
+    nuovoClienteTitle: 'New Customer',
+    modificaClienteTitle: 'Edit Customer',
+    labelNome: 'Name *',
+    labelEmail: 'Email',
+    labelTel: 'Phone',
+    labelIndirizzo: 'Address',
+    btnSalva: 'Save',
+    btnAnnulla: 'Cancel',
+    nuovoProdottoTitle: 'New Product',
+    modificaProdottoTitle: 'Edit Product',
+    labelProdDesc: 'Description',
+    labelProdPrezzo: 'Price (€) *',
+    labelProdStock: 'Stock',
+    scegliCliente: 'New Order — Choose Customer',
+    cercaClienteInput: '🔍  Search by name or customer code...',
+    nessunClienteTrovato: 'No customer found',
+    aggiungiArticoloTitle: 'Add Item',
+    cercaArticoloInput: '🔍  Code, name, brand, grams...',
+    nessunArticoloTrovato: 'No item found',
+    labelCartoni: 'Boxes *',
+    labelPrezzo: 'Price € *',
+    cercaAncora: '← Search again',
+    aggiungiBtn: 'Add ✓',
+    ordineCreatoTitle: 'Order Created!',
+    emailInCorso: '📧 Sending email...',
+    emailInviata: '✅ Email sent!',
+    emailSalvataInCoda: 'Email saved to queue',
+    btnChiudi: 'Close',
+    utentiTitle: 'Users',
+    gestioneUtenti: 'User Management',
+    nuovoUtente: '+ New User',
+    cambiaPasswordTitle: 'Change your password',
+    labelPwAttuale: 'Current password',
+    labelPwNuova: 'New password',
+    pwNuovaPlaceholder: 'New password (min 4 characters)',
+    btnCambiaPassword: 'Change Password',
+    nuovoUtenteTitle: 'New User',
+    labelNomeCompleto: 'Full name *',
+    labelUsernameField: 'Username *',
+    labelPasswordUtente: 'Password *',
+    labelAmministratore: 'Administrator',
+    btnCreaUtente: 'Create User',
+    dettaglioOrdine: 'Order Details',
+    labelClienteDet: 'Customer:',
+    labelStatoDet: 'Status:',
+    labelDataDet: 'Date:',
+    labelAgenteDet: 'Agent:',
+    labelNoteDet: 'Notes:',
+    colProdotto: 'Product',
+    colQuantita: 'Quantity',
+    colPrezzoUnit: 'Unit price',
+    colSubtotale: 'Subtotal',
+    prodottoRimosso: 'Product removed',
+    totaleLbl: 'Total:',
+    serverAttivo: '🟢 Server active',
+    serverNonAttivo: '🔴 Server offline',
+    inviaCodaEmail: '📤 Send email queue',
+    confElimOrdine: 'Delete order #',
+    confElimCliente: 'Delete this customer?',
+    confElimProdotto: 'Delete this product?',
+    confElimUtente: 'Delete this user?',
+    errAggStato: 'Error updating status',
+    errElimOrdine: 'Error deleting order',
+    errElimCliente: 'Error deleting customer',
+    errElimProdotto: 'Error deleting product',
+    errElimUtente: 'Error deleting user',
+    errSalvCliente: 'Error saving customer',
+    errSalvProdotto: 'Error saving product',
+    errNomeObb: 'Name is required',
+    errNomePrezzo: 'Name and price are required',
+    errCampi: 'Fill in all required fields',
+    errPw: 'Fill in both fields',
+    pwCambiata: 'Password changed successfully!',
+    errCaricamentoDati: 'Error loading data',
+    aggiungiClienteAlert: 'Add at least one customer first.',
+    aggiungiProdottoAlert: 'Add at least one product first.',
+    errSalvOrdine: 'Error saving order',
+    selezionaCliente: 'Select a customer',
+    aggiungiArticoloAlert: 'Add at least one item',
+    errCartoni: 'Enter a valid number of boxes',
+    errPrezzo: 'Enter a valid price',
+    nessunDato: 'No data found in file.',
+    nessunUtente: 'No users',
+    tu: '(you)',
+    crt: 'boxes',
+    ordineInfoTpl: (id, nome, tot) => `Order #${id} for ${nome} — Total €${tot}`,
+    importClientiAlert: (n, s) => `Import completed!\n✅ ${n} customers added\n⏭️ ${s} rows skipped (no name)`,
+    importProdottiAlert: (n, s) => `Import completed!\n✅ ${n} products added\n⏭️ ${s} rows skipped`,
+    emailCodaAlert: (n) => `✅ ${n} queued emails sent!`,
+    errImport: (msg) => `Import error: ${msg}`,
+    errSMTP: (e) => `⚠️ SMTP Error: ${e}`,
+    errEmailMsg: (e) => `❌ Error: ${e}`,
+  }
+};
+
+// ---- LINGUA ----
+let lang = localStorage.getItem('lang') || 'it';
+let _serverAttivo = null;
+
+function t(key, ...args) {
+  const val = (T[lang] && T[lang][key] !== undefined) ? T[lang][key] : (T['it'][key] || key);
+  return typeof val === 'function' ? val(...args) : val;
+}
+
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('lang', l);
+  document.documentElement.lang = l;
+  ['it','en'].forEach(code => {
+    document.getElementById('btn-lang-' + code)?.classList.toggle('active', code === l);
+    document.getElementById('sidebar-lang-' + code)?.classList.toggle('active', code === l);
+  });
+  applyTranslations();
+}
+
+function applyTranslations() {
+  document.title = t('appTitle');
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+  });
+  if (_utenteCorrente) {
+    document.getElementById('sidebar-role').textContent = _utenteCorrente.isAdmin ? t('roleAdmin') : t('roleAgent');
+  }
+  if (_serverAttivo !== null) {
+    const el = document.getElementById('server-stato');
+    if (el) { el.textContent = _serverAttivo ? t('serverAttivo') : t('serverNonAttivo'); }
+  }
+  const active = document.querySelector('.page.active');
+  if (active && _utenteCorrente) {
+    if (active.id === 'page-ordini') renderOrdini(allOrdini);
+    else if (active.id === 'page-clienti') renderClienti();
+    else if (active.id === 'page-prodotti') renderProdotti();
+    else if (active.id === 'page-dashboard') renderDashboard();
+    else if (active.id === 'page-utenti') renderUtenti();
+    else if (active.id === 'page-ordine-nuovo') renderRighe();
+  }
+}
+
 // ---- STATO GLOBALE ----
 let _clienti = [], _prodotti = [], _ordini = [];
 let _utenteCorrente = null;
@@ -594,7 +974,7 @@ async function doLogin() {
   const password = document.getElementById('login-password').value;
   const errEl = document.getElementById('login-error');
   errEl.style.display = 'none';
-  if (!username || !password) { errEl.textContent = 'Inserisci username e password'; errEl.style.display = 'block'; return; }
+  if (!username || !password) { errEl.textContent = t('loginErrFields'); errEl.style.display = 'block'; return; }
   try {
     const r = await fetch('/api/auth/login', {
       method: 'POST', headers: {'Content-Type':'application/json'},
@@ -610,11 +990,11 @@ async function doLogin() {
       aggiornaContatoreCoda();
       controllaServerECoda();
     } else {
-      errEl.textContent = data.error || 'Errore di accesso';
+      errEl.textContent = data.error || t('loginErrWrong');
       errEl.style.display = 'block';
     }
   } catch(e) {
-    errEl.textContent = 'Errore di connessione';
+    errEl.textContent = t('loginErrConn');
     errEl.style.display = 'block';
   }
 }
@@ -633,7 +1013,7 @@ function aggiornaInfoUtenteSidebar() {
   const iniziale = _utenteCorrente.nome.charAt(0).toUpperCase();
   document.getElementById('sidebar-avatar').textContent = iniziale;
   document.getElementById('sidebar-nome').textContent = _utenteCorrente.nome;
-  document.getElementById('sidebar-role').textContent = _utenteCorrente.isAdmin ? 'Amministratore' : 'Agente';
+  document.getElementById('sidebar-role').textContent = _utenteCorrente.isAdmin ? t('roleAdmin') : t('roleAgent');
   if (_utenteCorrente.isAdmin) {
     document.getElementById('nav-utenti').style.display = 'flex';
     document.getElementById('btn-import-clienti').style.display = '';
@@ -664,7 +1044,6 @@ function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebar-overlay').classList.remove('open');
 }
-
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
@@ -677,6 +1056,10 @@ async function loadDashboard() {
       api('GET', '/api/ordini'),
     ]);
   } catch(e) { console.error(e); }
+  renderDashboard();
+}
+
+function renderDashboard() {
   const inAttesa = _ordini.filter(o => o.stato === 'in_attesa').length;
   const fatturato = _ordini.reduce((s, o) => s + o.totale, 0);
   document.getElementById('stat-ordini').textContent = _ordini.length;
@@ -684,11 +1067,12 @@ async function loadDashboard() {
   document.getElementById('stat-clienti').textContent = _clienti.length;
   document.getElementById('stat-prodotti').textContent = _prodotti.length;
   document.getElementById('stat-fatturato').textContent = '€' + fatturato.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
   const last5 = _ordini.slice(0, 5);
   const el = document.getElementById('ultimi-ordini');
-  if (!last5.length) { el.innerHTML = '<div class="empty">Nessun ordine ancora</div>'; return; }
-  el.innerHTML = `<table><thead><tr><th>#</th><th>Cliente</th><th>Stato</th><th>Totale</th><th>Data</th></tr></thead><tbody>
+  if (!last5.length) { el.innerHTML = `<div class="empty">${t('noOrdini')}</div>`; return; }
+  el.innerHTML = `<table><thead><tr>
+    <th>${t('colNum')}</th><th>${t('colCliente')}</th><th>${t('colStato')}</th><th>${t('colTotale')}</th><th>${t('colData')}</th>
+  </tr></thead><tbody>
     ${last5.map(o => `<tr>
       <td>#${o.id}</td>
       <td title="${clienteNome(o.clienteId)}">${troncaNome(clienteNome(o.clienteId), 10)}</td>
@@ -703,16 +1087,14 @@ async function loadDashboard() {
 let allOrdini = [];
 
 async function loadOrdini() {
-  try {
-    _ordini = await api('GET', '/api/ordini');
-  } catch(e) { console.error(e); }
+  try { _ordini = await api('GET', '/api/ordini'); } catch(e) { console.error(e); }
   allOrdini = [..._ordini];
   renderOrdini(allOrdini);
 }
 
 function renderOrdini(ordini) {
   const tbody = document.getElementById('tbody-ordini');
-  if (!ordini.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">Nessun ordine</td></tr>'; return; }
+  if (!ordini.length) { tbody.innerHTML = `<tr><td colspan="7" class="empty">${t('nessunOrdine')}</td></tr>`; return; }
   tbody.innerHTML = ordini.map(o => `<tr>
     <td>#${o.id}</td>
     <td title="${clienteNome(o.clienteId)}">${troncaNome(clienteNome(o.clienteId), 10)}</td>
@@ -720,15 +1102,15 @@ function renderOrdini(ordini) {
     <td>
       <select class="stato-select" onchange="cambiaStato(${o.id}, this.value)">
         ${['in_attesa','completato','annullato'].map(s =>
-          `<option value="${s}" ${o.stato===s?'selected':''}>${s.replace('_',' ')}</option>`
+          `<option value="${s}" ${o.stato===s?'selected':''}>${t('stato_'+s)}</option>`
         ).join('')}
       </select>
     </td>
     <td>€${o.totale.toFixed(2)}</td>
     <td>${formatData(o.data)}</td>
     <td style="white-space:nowrap;">
-      <button class="btn-sm btn-primary" onclick="vedDettaglio(${o.id})">Vedi</button>
-      <button class="btn-sm btn-danger" onclick="eliminaOrdine(${o.id})" style="margin-left:4px;">Elimina</button>
+      <button class="btn-sm btn-primary" onclick="vedDettaglio(${o.id})">${t('btnVedi')}</button>
+      <button class="btn-sm btn-danger" onclick="eliminaOrdine(${o.id})" style="margin-left:4px;">${t('btnElimina')}</button>
     </td>
   </tr>`).join('');
 }
@@ -749,17 +1131,17 @@ async function cambiaStato(id, stato) {
     if (o) o.stato = stato;
     allOrdini = [..._ordini];
     renderOrdini(allOrdini);
-  } catch(e) { alert('Errore aggiornamento stato'); }
+  } catch(e) { alert(t('errAggStato')); }
 }
 
 async function eliminaOrdine(id) {
-  if (!confirm('Eliminare ordine #' + id + '?')) return;
+  if (!confirm(t('confElimOrdine') + id + '?')) return;
   try {
     await api('DELETE', '/api/ordini/' + id);
     _ordini = _ordini.filter(o => o.id !== id);
     allOrdini = [..._ordini];
     renderOrdini(allOrdini);
-  } catch(e) { alert('Errore eliminazione ordine'); }
+  } catch(e) { alert(t('errElimOrdine')); }
 }
 
 function vedDettaglio(id) {
@@ -768,18 +1150,20 @@ function vedDettaglio(id) {
   const c = _clienti.find(x => x.id === o.clienteId);
   document.getElementById('dettaglio-id').textContent = '#' + o.id;
   document.getElementById('dettaglio-body').innerHTML = `
-    <div style="margin-bottom:10px;"><b>Cliente:</b> ${c ? c.nome : '-'} ${c && c.email ? '('+c.email+')' : ''}</div>
-    <div style="margin-bottom:10px;"><b>Stato:</b> ${badgeStato(o.stato)}</div>
-    <div style="margin-bottom:10px;"><b>Data:</b> ${formatData(o.data)}</div>
-    ${o.utenteNome ? `<div style="margin-bottom:10px;"><b>Agente:</b> ${o.utenteNome}</div>` : ''}
-    ${o.note ? `<div style="margin-bottom:10px;"><b>Note:</b> ${o.note}</div>` : ''}
+    <div style="margin-bottom:10px;"><b>${t('labelClienteDet')}</b> ${c ? c.nome : '-'} ${c && c.email ? '('+c.email+')' : ''}</div>
+    <div style="margin-bottom:10px;"><b>${t('labelStatoDet')}</b> ${badgeStato(o.stato)}</div>
+    <div style="margin-bottom:10px;"><b>${t('labelDataDet')}</b> ${formatData(o.data)}</div>
+    ${o.utenteNome ? `<div style="margin-bottom:10px;"><b>${t('labelAgenteDet')}</b> ${o.utenteNome}</div>` : ''}
+    ${o.note ? `<div style="margin-bottom:10px;"><b>${t('labelNoteDet')}</b> ${o.note}</div>` : ''}
     <table style="margin-top:12px;">
-      <thead><tr><th>Prodotto</th><th>Quantità</th><th>Prezzo unit.</th><th>Subtotale</th></tr></thead>
+      <thead><tr>
+        <th>${t('colProdotto')}</th><th>${t('colQuantita')}</th><th>${t('colPrezzoUnit')}</th><th>${t('colSubtotale')}</th>
+      </tr></thead>
       <tbody>
         ${o.righe.map(r => {
           const p = _prodotti.find(x => x.id === r.prodottoId);
           return `<tr>
-            <td>${p ? p.nome : 'Prodotto rimosso'}</td>
+            <td>${p ? p.nome : t('prodottoRimosso')}</td>
             <td>${r.quantita}</td>
             <td>€${parseFloat(r.prezzo).toFixed(2)}</td>
             <td>€${(r.quantita * r.prezzo).toFixed(2)}</td>
@@ -787,7 +1171,7 @@ function vedDettaglio(id) {
         }).join('')}
       </tbody>
     </table>
-    <div style="text-align:right;font-weight:700;font-size:18px;margin-top:12px;color:#4f8ef7;">Totale: €${o.totale.toFixed(2)}</div>
+    <div style="text-align:right;font-weight:700;font-size:18px;margin-top:12px;color:#4f8ef7;">${t('totaleLbl')} €${o.totale.toFixed(2)}</div>
   `;
   openModal('modal-dettaglio');
 }
@@ -800,9 +1184,9 @@ let wizardArtSelezionato = null;
 async function openNuovoOrdine() {
   try {
     [_clienti, _prodotti] = await Promise.all([api('GET', '/api/clienti'), api('GET', '/api/prodotti')]);
-  } catch(e) { alert('Errore caricamento dati'); return; }
-  if (!_clienti.length) { alert('Aggiungi almeno un cliente prima.'); return; }
-  if (!_prodotti.length) { alert('Aggiungi almeno un prodotto prima.'); return; }
+  } catch(e) { alert(t('errCaricamentoDati')); return; }
+  if (!_clienti.length) { alert(t('aggiungiClienteAlert')); return; }
+  if (!_prodotti.length) { alert(t('aggiungiProdottoAlert')); return; }
   wizardClienteId = null;
   wizardRighe = [];
   wizardArtSelezionato = null;
@@ -822,7 +1206,7 @@ function filtraClientiOrdine(q) {
         (c.partitaIva||'').toLowerCase().includes(ql))
     : _clienti;
   const el = document.getElementById('lista-clienti-ordine');
-  if (!filtered.length) { el.innerHTML = '<div class="no-results">Nessun cliente trovato</div>'; return; }
+  if (!filtered.length) { el.innerHTML = `<div class="no-results">${t('nessunClienteTrovato')}</div>`; return; }
   el.innerHTML = filtered.map(c => `
     <div class="search-item" onclick="selezionaCliente(${c.id})">
       <div class="item-left">
@@ -857,7 +1241,7 @@ function annullaOrdineNuovo() { showPage('ordini'); }
 function renderRighe() {
   const el = document.getElementById('np-righe');
   if (!wizardRighe.length) {
-    el.innerHTML = '<div style="color:#aaa;font-size:14px;text-align:center;padding:24px;">Nessun articolo aggiunto ancora</div>';
+    el.innerHTML = `<div style="color:#aaa;font-size:14px;text-align:center;padding:24px;">${t('nessunArticolo')}</div>`;
     document.getElementById('np-totale').textContent = '';
     return;
   }
@@ -866,13 +1250,13 @@ function renderRighe() {
     return `<div class="riga-ordine">
       <span class="art-code">${p && p.codice ? p.codice : (p ? '#'+p.id : '?')}</span>
       <div><div class="art-nome">${p ? p.nome : '?'}</div><div class="art-sub">${p ? (p.descrizione||'') : ''}</div></div>
-      <div class="art-val">${r.quantita} crt.</div>
+      <div class="art-val">${r.quantita} ${t('crt')}</div>
       <div class="art-val">€${r.prezzo.toFixed(2)}</div>
       <button class="art-del" onclick="rimuoviRiga(${i})">✕</button>
     </div>`;
   }).join('');
   const totale = wizardRighe.reduce((s, r) => s + r.prezzo * r.quantita, 0);
-  document.getElementById('np-totale').textContent = 'Totale: €' + totale.toFixed(2);
+  document.getElementById('np-totale').textContent = t('totaleLbl') + ' €' + totale.toFixed(2);
 }
 
 function rimuoviRiga(i) { wizardRighe.splice(i, 1); renderRighe(); }
@@ -896,7 +1280,7 @@ function filtraArticoli(q) {
         (p.descrizione||'').toLowerCase().includes(ql))
     : _prodotti;
   const el = document.getElementById('lista-articoli');
-  if (!filtered.length) { el.innerHTML = '<div class="no-results">Nessun articolo trovato</div>'; return; }
+  if (!filtered.length) { el.innerHTML = `<div class="no-results">${t('nessunArticoloTrovato')}</div>`; return; }
   el.innerHTML = filtered.map(p => `
     <div class="search-item" onclick="selezionaArticolo(${p.id})">
       <div class="item-left">
@@ -932,64 +1316,57 @@ function annullaArtQty() {
 function confermaArticolo() {
   const qty = parseInt(document.getElementById('art-qty').value);
   const prezzo = parseFloat(document.getElementById('art-prezzo').value);
-  if (!qty || qty < 1) { alert('Inserisci un numero di cartoni valido'); return; }
-  if (isNaN(prezzo) || prezzo < 0) { alert('Inserisci un prezzo valido'); return; }
+  if (!qty || qty < 1) { alert(t('errCartoni')); return; }
+  if (isNaN(prezzo) || prezzo < 0) { alert(t('errPrezzo')); return; }
   wizardRighe.push({ prodottoId: wizardArtSelezionato.id, quantita: qty, prezzo });
   closeModal('modal-cerca-art');
   renderRighe();
 }
 
 async function salvaOrdine() {
-  if (!wizardClienteId) { alert('Seleziona un cliente'); return; }
-  if (!wizardRighe.length) { alert('Aggiungi almeno un articolo'); return; }
+  if (!wizardClienteId) { alert(t('selezionaCliente')); return; }
+  if (!wizardRighe.length) { alert(t('aggiungiArticoloAlert')); return; }
   const totale = wizardRighe.reduce((s, r) => s + r.prezzo * r.quantita, 0);
   const c = _clienti.find(x => x.id === wizardClienteId);
   const note = document.getElementById('np-note').value;
-
   let nuovoOrdine;
   try {
     nuovoOrdine = await api('POST', '/api/ordini', { clienteId: wizardClienteId, righe: wizardRighe, totale, stato: 'in_attesa', note });
     _ordini.unshift(nuovoOrdine);
-  } catch(e) { alert('Errore salvataggio ordine'); return; }
-
+  } catch(e) { alert(t('errSalvOrdine')); return; }
   showPage('ordini');
-
   const articoli = wizardRighe.map(r => {
     const p = _prodotti.find(x => x.id === r.prodottoId);
     return { codice: p && p.codice ? p.codice : ('#'+r.prodottoId), nome: p ? p.nome : '?', quantita: r.quantita, prezzo: r.prezzo };
   });
-  document.getElementById('ordine-ok-info').textContent = `Ordine #${nuovoOrdine.id} per ${c ? c.nome : ''} — Totale €${totale.toFixed(2)}`;
-  document.getElementById('ordine-ok-email-stato').textContent = '📧 Invio email in corso...';
+  document.getElementById('ordine-ok-info').textContent = t('ordineInfoTpl', nuovoOrdine.id, c ? c.nome : '', totale.toFixed(2));
+  document.getElementById('ordine-ok-email-stato').textContent = t('emailInCorso');
   openModal('modal-ordine-ok');
-
   const payload = {
-    ordineId: nuovoOrdine.id,
-    clienteNome: c ? c.nome : '',
-    clienteCodice: c ? (c.codice || '') : '',
-    articoli, totale, note,
-    data: new Date().toLocaleString('it-IT'),
+    ordineId: nuovoOrdine.id, clienteNome: c ? c.nome : '', clienteCodice: c ? (c.codice || '') : '',
+    articoli, totale, note, data: new Date().toLocaleString('it-IT'),
   };
   inviaEmailOrdine(payload, document.getElementById('ordine-ok-email-stato'));
 }
 
-// ---- SISTEMA EMAIL CON CODA ----
+// ---- EMAIL CON CODA ----
 function inviaEmailOrdine(payload, statoEl) {
-  if (statoEl) statoEl.textContent = '📧 Invio email in corso...';
+  if (statoEl) statoEl.textContent = t('emailInCorso');
   fetch('/api/send-email', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) })
   .then(r => r.text().then(text => ({ status: r.status, text })))
   .then(({ status, text }) => {
     let r;
-    try { r = JSON.parse(text); } catch(e) { throw new Error('Risposta non valida: ' + text.substring(0, 80)); }
+    try { r = JSON.parse(text); } catch(e) { throw new Error(text.substring(0, 80)); }
     if (r.ok) {
-      if (statoEl) statoEl.textContent = '✅ Email inviata!';
+      if (statoEl) statoEl.textContent = t('emailInviata');
     } else {
       aggiungiCoda(payload);
-      if (statoEl) statoEl.textContent = '⚠️ Errore SMTP: ' + (r.error || 'sconosciuto');
+      if (statoEl) statoEl.textContent = t('errSMTP', r.error || '?');
     }
   })
   .catch(err => {
     aggiungiCoda(payload);
-    if (statoEl) statoEl.innerHTML = '❌ Errore: ' + err.message + '<br><small style="color:#888;">Email salvata in coda</small>';
+    if (statoEl) statoEl.innerHTML = t('errEmailMsg', err.message) + `<br><small style="color:#888;">${t('emailSalvataInCoda')}</small>`;
   });
 }
 
@@ -1014,7 +1391,7 @@ function svuotaCodaEmail() {
   let inviati = 0, idx = 0;
   function prossima() {
     if (idx >= coda.length) {
-      if (inviati > 0) { alert(`✅ ${inviati} email in coda inviate!`); aggiornaContatoreCoda(); }
+      if (inviati > 0) { alert(t('emailCodaAlert', inviati)); aggiornaContatoreCoda(); }
       return;
     }
     const payload = coda[idx];
@@ -1039,12 +1416,14 @@ function controllaServerECoda() {
   const btnCoda = document.getElementById('btn-invia-coda');
   fetch('/api/send-email', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({_ping: true}) })
     .then(() => {
-      if (statoEl) { statoEl.textContent = '🟢 Server attivo'; statoEl.style.color = '#4ade80'; }
+      _serverAttivo = true;
+      if (statoEl) { statoEl.textContent = t('serverAttivo'); statoEl.style.color = '#4ade80'; }
       if (btnCoda) btnCoda.style.display = 'none';
       if (coda.length) svuotaCodaEmail();
     })
     .catch(() => {
-      if (statoEl) { statoEl.textContent = '🔴 Server non attivo'; statoEl.style.color = '#f87171'; }
+      _serverAttivo = false;
+      if (statoEl) { statoEl.textContent = t('serverNonAttivo'); statoEl.style.color = '#f87171'; }
       if (btnCoda) btnCoda.style.display = coda.length ? '' : 'none';
     });
 }
@@ -1052,22 +1431,26 @@ function controllaServerECoda() {
 // ---- CLIENTI ----
 async function loadClienti() {
   try { _clienti = await api('GET', '/api/clienti'); } catch(e) { console.error(e); }
+  renderClienti();
+}
+
+function renderClienti() {
   const tbody = document.getElementById('tbody-clienti');
-  if (!_clienti.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Nessun cliente</td></tr>'; return; }
+  if (!_clienti.length) { tbody.innerHTML = `<tr><td colspan="5" class="empty">${t('nessunCliente')}</td></tr>`; return; }
   tbody.innerHTML = _clienti.map(c => `<tr>
     <td>${c.nome}</td>
     <td>${c.email || '-'}</td>
     <td>${c.telefono || '-'}</td>
     <td>${c.indirizzo || '-'}</td>
     <td style="white-space:nowrap;">
-      <button class="btn-sm btn-primary" onclick="openModificaCliente(${c.id})">Modifica</button>
-      <button class="btn-sm btn-danger" onclick="eliminaCliente(${c.id})" style="margin-left:4px;">Elimina</button>
+      <button class="btn-sm btn-primary" onclick="openModificaCliente(${c.id})">${t('btnModifica')}</button>
+      <button class="btn-sm btn-danger" onclick="eliminaCliente(${c.id})" style="margin-left:4px;">${t('btnElimina')}</button>
     </td>
   </tr>`).join('');
 }
 
 function openNuovoCliente() {
-  document.getElementById('modal-cliente-title').textContent = 'Nuovo Cliente';
+  document.getElementById('modal-cliente-title').textContent = t('nuovoClienteTitle');
   document.getElementById('cliente-id').value = '';
   ['nome','email','tel','indirizzo'].forEach(f => document.getElementById('cliente-' + f).value = '');
   openModal('modal-cliente');
@@ -1075,7 +1458,7 @@ function openNuovoCliente() {
 
 function openModificaCliente(id) {
   const c = _clienti.find(x => x.id === id);
-  document.getElementById('modal-cliente-title').textContent = 'Modifica Cliente';
+  document.getElementById('modal-cliente-title').textContent = t('modificaClienteTitle');
   document.getElementById('cliente-id').value = c.id;
   document.getElementById('cliente-nome').value = c.nome;
   document.getElementById('cliente-email').value = c.email || '';
@@ -1086,7 +1469,7 @@ function openModificaCliente(id) {
 
 async function salvaCliente() {
   const nome = document.getElementById('cliente-nome').value.trim();
-  if (!nome) { alert('Il nome è obbligatorio'); return; }
+  if (!nome) { alert(t('errNomeObb')); return; }
   const id = parseInt(document.getElementById('cliente-id').value) || null;
   const obj = { nome, email: document.getElementById('cliente-email').value, telefono: document.getElementById('cliente-tel').value, indirizzo: document.getElementById('cliente-indirizzo').value };
   try {
@@ -1094,16 +1477,15 @@ async function salvaCliente() {
     else { await api('POST', '/api/clienti', obj); }
     closeModal('modal-cliente');
     loadClienti();
-  } catch(e) { alert('Errore salvataggio cliente'); }
+  } catch(e) { alert(t('errSalvCliente')); }
 }
 
 async function eliminaCliente(id) {
-  if (!confirm('Eliminare questo cliente?')) return;
+  if (!confirm(t('confElimCliente'))) return;
   try { await api('DELETE', '/api/clienti/' + id); loadClienti(); }
-  catch(e) { alert('Errore eliminazione cliente'); }
+  catch(e) { alert(t('errElimCliente')); }
 }
 
-// ---- IMPORTA EXCEL CLIENTI ----
 function importaClientiExcel(input) {
   const file = input.files[0];
   if (!file) return;
@@ -1112,8 +1494,7 @@ function importaClientiExcel(input) {
     const wb = XLSX.read(e.target.result, { type: 'array' });
     const ws = wb.Sheets[wb.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
-    if (!rows.length) { alert('Nessun dato trovato nel file.'); return; }
-
+    if (!rows.length) { alert(t('nessunDato')); return; }
     const col = (row, ...keys) => {
       for (const k of keys) {
         const found = Object.keys(row).find(h => h.toLowerCase().includes(k.toLowerCase()));
@@ -1121,7 +1502,6 @@ function importaClientiExcel(input) {
       }
       return '';
     };
-
     const clientiDaInviare = [];
     let saltati = 0;
     for (const row of rows) {
@@ -1142,8 +1522,8 @@ function importaClientiExcel(input) {
       const r = await api('POST', '/api/clienti/bulk', { clienti: clientiDaInviare });
       input.value = '';
       loadClienti();
-      alert(`Importazione completata!\n✅ ${r.count} clienti aggiunti\n⏭️ ${saltati} righe saltate (senza nome)`);
-    } catch(e) { alert('Errore importazione: ' + e.message); }
+      alert(t('importClientiAlert', r.count, saltati));
+    } catch(e) { alert(t('errImport', e.message)); }
   };
   reader.readAsArrayBuffer(file);
 }
@@ -1151,22 +1531,26 @@ function importaClientiExcel(input) {
 // ---- PRODOTTI ----
 async function loadProdotti() {
   try { _prodotti = await api('GET', '/api/prodotti'); } catch(e) { console.error(e); }
+  renderProdotti();
+}
+
+function renderProdotti() {
   const tbody = document.getElementById('tbody-prodotti');
-  if (!_prodotti.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Nessun prodotto</td></tr>'; return; }
+  if (!_prodotti.length) { tbody.innerHTML = `<tr><td colspan="5" class="empty">${t('nessunProdotto')}</td></tr>`; return; }
   tbody.innerHTML = _prodotti.map(p => `<tr>
     <td>${p.nome}</td>
     <td>${p.descrizione || '-'}</td>
     <td>€${p.prezzo.toFixed(2)}</td>
     <td>${p.stock}</td>
     <td style="white-space:nowrap;">
-      <button class="btn-sm btn-primary" onclick="openModificaProdotto(${p.id})">Modifica</button>
-      <button class="btn-sm btn-danger" onclick="eliminaProdotto(${p.id})" style="margin-left:4px;">Elimina</button>
+      <button class="btn-sm btn-primary" onclick="openModificaProdotto(${p.id})">${t('btnModifica')}</button>
+      <button class="btn-sm btn-danger" onclick="eliminaProdotto(${p.id})" style="margin-left:4px;">${t('btnElimina')}</button>
     </td>
   </tr>`).join('');
 }
 
 function openNuovoProdotto() {
-  document.getElementById('modal-prodotto-title').textContent = 'Nuovo Prodotto';
+  document.getElementById('modal-prodotto-title').textContent = t('nuovoProdottoTitle');
   document.getElementById('prodotto-id').value = '';
   ['nome','desc','prezzo','stock'].forEach(f => document.getElementById('prodotto-' + f).value = '');
   openModal('modal-prodotto');
@@ -1174,7 +1558,7 @@ function openNuovoProdotto() {
 
 function openModificaProdotto(id) {
   const p = _prodotti.find(x => x.id === id);
-  document.getElementById('modal-prodotto-title').textContent = 'Modifica Prodotto';
+  document.getElementById('modal-prodotto-title').textContent = t('modificaProdottoTitle');
   document.getElementById('prodotto-id').value = p.id;
   document.getElementById('prodotto-nome').value = p.nome;
   document.getElementById('prodotto-desc').value = p.descrizione || '';
@@ -1186,7 +1570,7 @@ function openModificaProdotto(id) {
 async function salvaProdotto() {
   const nome = document.getElementById('prodotto-nome').value.trim();
   const prezzo = parseFloat(document.getElementById('prodotto-prezzo').value);
-  if (!nome || isNaN(prezzo)) { alert('Nome e prezzo sono obbligatori'); return; }
+  if (!nome || isNaN(prezzo)) { alert(t('errNomePrezzo')); return; }
   const id = parseInt(document.getElementById('prodotto-id').value) || null;
   const obj = { nome, descrizione: document.getElementById('prodotto-desc').value, prezzo, stock: parseInt(document.getElementById('prodotto-stock').value) || 0 };
   try {
@@ -1194,16 +1578,15 @@ async function salvaProdotto() {
     else { await api('POST', '/api/prodotti', obj); }
     closeModal('modal-prodotto');
     loadProdotti();
-  } catch(e) { alert('Errore salvataggio prodotto'); }
+  } catch(e) { alert(t('errSalvProdotto')); }
 }
 
 async function eliminaProdotto(id) {
-  if (!confirm('Eliminare questo prodotto?')) return;
+  if (!confirm(t('confElimProdotto'))) return;
   try { await api('DELETE', '/api/prodotti/' + id); loadProdotti(); }
-  catch(e) { alert('Errore eliminazione prodotto'); }
+  catch(e) { alert(t('errElimProdotto')); }
 }
 
-// ---- IMPORTA EXCEL PRODOTTI ----
 function importaProdottiExcel(input) {
   const file = input.files[0];
   if (!file) return;
@@ -1212,8 +1595,7 @@ function importaProdottiExcel(input) {
     const wb = XLSX.read(e.target.result, { type: 'array' });
     const ws = wb.Sheets[wb.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
-    if (!rows.length) { alert('Nessun dato trovato nel file.'); return; }
-
+    if (!rows.length) { alert(t('nessunDato')); return; }
     const col = (row, ...keys) => {
       for (const k of keys) {
         const found = Object.keys(row).find(h => h.toLowerCase().includes(k.toLowerCase()));
@@ -1221,7 +1603,6 @@ function importaProdottiExcel(input) {
       }
       return '';
     };
-
     const prodottiDaInviare = [];
     let saltati = 0;
     for (const row of rows) {
@@ -1237,8 +1618,8 @@ function importaProdottiExcel(input) {
       const r = await api('POST', '/api/prodotti/bulk', { prodotti: prodottiDaInviare });
       input.value = '';
       loadProdotti();
-      alert(`Importazione completata!\n✅ ${r.count} prodotti aggiunti\n⏭️ ${saltati} righe saltate`);
-    } catch(e) { alert('Errore importazione: ' + e.message); }
+      alert(t('importProdottiAlert', r.count, saltati));
+    } catch(e) { alert(t('errImport', e.message)); }
   };
   reader.readAsArrayBuffer(file);
 }
@@ -1255,8 +1636,7 @@ function clienteNome(id) {
 
 function badgeStato(stato) {
   const map = { in_attesa: 'badge-attesa', completato: 'badge-completato', annullato: 'badge-annullato' };
-  const labels = { in_attesa: 'In Attesa', completato: 'Completato', annullato: 'Annullato' };
-  return `<span class="badge ${map[stato]||''}">${labels[stato]||stato}</span>`;
+  return `<span class="badge ${map[stato]||''}">${t('stato_'+stato)||stato}</span>`;
 }
 
 function formatData(d) {
@@ -1269,8 +1649,12 @@ let _utenti = [];
 
 async function loadUtenti() {
   try { _utenti = await api('GET', '/api/utenti'); } catch(e) { return; }
+  renderUtenti();
+}
+
+function renderUtenti() {
   const el = document.getElementById('lista-utenti');
-  if (!_utenti.length) { el.innerHTML = '<div class="empty">Nessun utente</div>'; return; }
+  if (!_utenti.length) { el.innerHTML = `<div class="empty">${t('nessunUtente')}</div>`; return; }
   el.innerHTML = _utenti.map(u => `
     <div class="utente-row">
       <div class="utente-avatar">${u.nome.charAt(0).toUpperCase()}</div>
@@ -1278,7 +1662,7 @@ async function loadUtenti() {
         <div class="utente-nome">${u.nome} ${u.isAdmin ? '<span class="badge" style="background:#eff6ff;color:#4f8ef7;font-size:10px;">Admin</span>' : ''}</div>
         <div class="utente-username">@${u.username}</div>
       </div>
-      ${u.id !== _utenteCorrente.id ? `<button class="btn-sm btn-danger" onclick="eliminaUtente(${u.id})">Elimina</button>` : '<span style="font-size:12px;color:#aaa;">(tu)</span>'}
+      ${u.id !== _utenteCorrente.id ? `<button class="btn-sm btn-danger" onclick="eliminaUtente(${u.id})">${t('btnElimina')}</button>` : `<span style="font-size:12px;color:#aaa;">${t('tu')}</span>`}
     </div>
   `).join('');
 }
@@ -1296,7 +1680,7 @@ async function salvaUtente() {
   const username = document.getElementById('utente-username').value.trim();
   const password = document.getElementById('utente-password').value;
   const isAdmin = document.getElementById('utente-admin').checked;
-  if (!nome || !username || !password) { alert('Compila tutti i campi obbligatori'); return; }
+  if (!nome || !username || !password) { alert(t('errCampi')); return; }
   try {
     await api('POST', '/api/utenti', { nome, username, password, isAdmin });
     closeModal('modal-utente');
@@ -1305,22 +1689,22 @@ async function salvaUtente() {
 }
 
 async function eliminaUtente(id) {
-  if (!confirm('Eliminare questo utente?')) return;
+  if (!confirm(t('confElimUtente'))) return;
   try {
     await api('DELETE', '/api/utenti/' + id);
     loadUtenti();
-  } catch(e) { alert('Errore: ' + e.message); }
+  } catch(e) { alert(t('errElimUtente')); }
 }
 
 async function cambiaPassword() {
   const oldPassword = document.getElementById('cp-old').value;
   const newPassword = document.getElementById('cp-new').value;
-  if (!oldPassword || !newPassword) { alert('Compila entrambi i campi'); return; }
+  if (!oldPassword || !newPassword) { alert(t('errPw')); return; }
   try {
     await api('POST', '/api/auth/change-password', { oldPassword, newPassword });
     document.getElementById('cp-old').value = '';
     document.getElementById('cp-new').value = '';
-    alert('Password cambiata con successo!');
+    alert(t('pwCambiata'));
   } catch(e) { alert('Errore: ' + e.message); }
 }
 
@@ -1328,6 +1712,8 @@ document.querySelectorAll('.modal-overlay').forEach(m => {
   m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
 });
 
+// ---- INIT ----
+setLang(lang);
 checkAuth();
 setInterval(controllaServerECoda, 60000);
 </script>
