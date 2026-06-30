@@ -683,7 +683,7 @@ async function loadDashboard() {
   document.getElementById('stat-attesa').textContent = inAttesa;
   document.getElementById('stat-clienti').textContent = _clienti.length;
   document.getElementById('stat-prodotti').textContent = _prodotti.length;
-  document.getElementById('stat-fatturato').textContent = '€' + fatturato.toFixed(2);
+  document.getElementById('stat-fatturato').textContent = '€' + fatturato.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
   const last5 = _ordini.slice(0, 5);
   const el = document.getElementById('ultimi-ordini');
