@@ -346,7 +346,7 @@
       <div class="toolbar">
         <h2>Lista Clienti</h2>
         <button class="btn-primary" onclick="openNuovoCliente()">+ Nuovo Cliente</button>
-        <button class="btn-primary" onclick="document.getElementById('import-excel').click()" style="background:#16a34a;">📥 Importa Excel</button>
+        <button id="btn-import-clienti" class="btn-primary" onclick="document.getElementById('import-excel').click()" style="background:#16a34a;display:none;">📥 Importa Excel</button>
         <input type="file" id="import-excel" accept=".xlsx,.xls" style="display:none" onchange="importaClientiExcel(this)">
       </div>
       <table>
@@ -421,7 +421,7 @@
       <div class="toolbar">
         <h2>Catalogo Prodotti</h2>
         <button class="btn-primary" onclick="openNuovoProdotto()">+ Nuovo Prodotto</button>
-        <button class="btn-primary" onclick="document.getElementById('import-excel-prodotti').click()" style="background:#16a34a;">📥 Importa Excel</button>
+        <button id="btn-import-prodotti" class="btn-primary" onclick="document.getElementById('import-excel-prodotti').click()" style="background:#16a34a;display:none;">📥 Importa Excel</button>
         <input type="file" id="import-excel-prodotti" accept=".xlsx,.xls" style="display:none" onchange="importaProdottiExcel(this)">
       </div>
       <table>
@@ -634,7 +634,11 @@ function aggiornaInfoUtenteSidebar() {
   document.getElementById('sidebar-avatar').textContent = iniziale;
   document.getElementById('sidebar-nome').textContent = _utenteCorrente.nome;
   document.getElementById('sidebar-role').textContent = _utenteCorrente.isAdmin ? 'Amministratore' : 'Agente';
-  if (_utenteCorrente.isAdmin) document.getElementById('nav-utenti').style.display = 'flex';
+  if (_utenteCorrente.isAdmin) {
+    document.getElementById('nav-utenti').style.display = 'flex';
+    document.getElementById('btn-import-clienti').style.display = '';
+    document.getElementById('btn-import-prodotti').style.display = '';
+  }
 }
 
 // ---- NAV ----
@@ -674,7 +678,7 @@ async function loadDashboard() {
     ]);
   } catch(e) { console.error(e); }
   const inAttesa = _ordini.filter(o => o.stato === 'in_attesa').length;
-  const fatturato = _ordini.filter(o => o.stato === 'completato').reduce((s, o) => s + o.totale, 0);
+  const fatturato = _ordini.reduce((s, o) => s + o.totale, 0);
   document.getElementById('stat-ordini').textContent = _ordini.length;
   document.getElementById('stat-attesa').textContent = inAttesa;
   document.getElementById('stat-clienti').textContent = _clienti.length;
@@ -687,7 +691,7 @@ async function loadDashboard() {
   el.innerHTML = `<table><thead><tr><th>#</th><th>Cliente</th><th>Stato</th><th>Totale</th><th>Data</th></tr></thead><tbody>
     ${last5.map(o => `<tr>
       <td>#${o.id}</td>
-      <td>${clienteNome(o.clienteId)}</td>
+      <td title="${clienteNome(o.clienteId)}">${troncaNome(clienteNome(o.clienteId), 10)}</td>
       <td>${badgeStato(o.stato)}</td>
       <td>€${o.totale.toFixed(2)}</td>
       <td>${formatData(o.data)}</td>
@@ -711,7 +715,7 @@ function renderOrdini(ordini) {
   if (!ordini.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">Nessun ordine</td></tr>'; return; }
   tbody.innerHTML = ordini.map(o => `<tr>
     <td>#${o.id}</td>
-    <td>${clienteNome(o.clienteId)}</td>
+    <td title="${clienteNome(o.clienteId)}">${troncaNome(clienteNome(o.clienteId), 10)}</td>
     <td style="color:#555;font-size:13px;">${o.utenteNome || '-'}</td>
     <td>
       <select class="stato-select" onchange="cambiaStato(${o.id}, this.value)">
@@ -1240,6 +1244,10 @@ function importaProdottiExcel(input) {
 }
 
 // ---- UTILS ----
+function troncaNome(nome, max) {
+  return nome.length > max ? nome.substring(0, max) + '…' : nome;
+}
+
 function clienteNome(id) {
   const c = _clienti.find(x => x.id === id);
   return c ? c.nome : '-';
